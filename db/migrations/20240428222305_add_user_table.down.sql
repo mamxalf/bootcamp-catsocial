@@ -1,6 +1,5 @@
 BEGIN;
 
-DROP INDEX idx_users_uniq_email;
 DROP TABLE IF EXISTS users CASCADE;
 DROP TRIGGER IF EXISTS set_users_updated_at ON users CASCADE;
 
