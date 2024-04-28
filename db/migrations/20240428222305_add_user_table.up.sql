@@ -2,7 +2,7 @@ BEGIN;
 
 CREATE TABLE IF NOT EXISTS users (
     id UUID NOT NULL PRIMARY KEY DEFAULT uuid_generate_v4(), -- uuid v4
-    username varchar NOT NULL,
+    name varchar NOT NULL,
     email varchar NOT NULL UNIQUE,
     password varchar NOT NULL,
 
@@ -29,8 +29,5 @@ CREATE TRIGGER set_user_sessions_updated_at BEFORE UPDATE ON user_sessions FOR E
 
 -- alter table
 ALTER TABLE user_sessions ADD FOREIGN KEY (user_id) REFERENCES users (id);
-
--- create index
-CREATE UNIQUE INDEX idx_users_uniq_email ON users(email);
 
 COMMIT;
