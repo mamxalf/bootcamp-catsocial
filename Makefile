@@ -1,7 +1,7 @@
 include .env
 
 MIGRATION_STEP=1
-DB_CONN=postgres://$(DB.PG.USER:"%"=%):$(DB.PG.PASSWORD:"%"=%)@$(DB.PG.HOST:"%"=%):$(DB.PG.PORT:"%"=%)/$(DB.PG.NAME:"%"=%)?sslmode=$(DB.PG.SSLMODE:"%"=%)
+DB_CONN=postgres://$(DB_USERNAME:"%"=%):$(DB_PASSWORD:"%"=%)@$(DB_HOST:"%"=%):$(DB_PORT:"%"=%)/$(DB_NAME:"%"=%)?sslmode=$(DB_PARAMS:"%"=%)
 
 dev: generate
 	go run github.com/cosmtrek/air
