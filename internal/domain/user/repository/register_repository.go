@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"github.com/rs/zerolog/log"
 	"strings"
 )
@@ -13,10 +14,10 @@ import (
 var registerQueries = struct {
 	registerUser string
 }{
-	registerUser: "INSERT INTO users %s VALUES %s",
+	registerUser: "INSERT INTO users %s VALUES %s RETURNING id",
 }
 
-func (repo *UserRepositoryInfra) Register(ctx context.Context, userRegister *model.UserRegister) (lastInsertId uuid.UUID, err error) {
+func (repo *UserRepositoryInfra) Register(ctx context.Context, userRegister *model.UserRegister) (id uuid.UUID, err error) {
 	fieldsStr, valueListStr, args := composeInsertFieldAndParamsUser(*userRegister)
 	commandQuery := fmt.Sprintf(registerQueries.registerUser, fieldsStr, strings.Join(valueListStr, ","))
 
@@ -28,8 +29,15 @@ func (repo *UserRepositoryInfra) Register(ctx context.Context, userRegister *mod
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRowContext(ctx, args...).Scan(&lastInsertId)
+	err = stmt.QueryRowContext(ctx, args...).Scan(&id)
 	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok {
+			// Check if the error code is for a unique violation
+			if pqErr.Code == "23505" {
+				err = failure.Conflict("Duplicate key error occurred", pqErr.Message)
+				return
+			}
+		}
 		log.Error().Err(err).Msg("[UserRepository - execInsert] failed to execute query and scan id")
 		err = failure.InternalError(err)
 		return

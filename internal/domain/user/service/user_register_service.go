@@ -19,9 +19,12 @@ func (u *UserServiceImpl) RegisterNewUser(ctx context.Context, req request.Regis
 
 	lastInsertId, err := u.UserRepository.Register(ctx, &registerModel)
 	if err != nil {
-		if failure.GetCode(err) != http.StatusNotFound {
-			log.Error().Interface("params", req).Err(err).Msg("[RegisterNewUser - Service]")
+		if failure.GetCode(err) == http.StatusConflict {
+			log.Error().Interface("params", req).Err(err).Msg("[RegisterNewUser - Service] Email should unique")
+			return
 		}
+		log.Error().Interface("params", req).Err(err).Msg("[RegisterNewUser - Service] Internal Error")
+		return
 	}
 
 	generateTokenParams := &token.GenerateTokenParams{

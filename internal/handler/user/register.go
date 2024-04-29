@@ -35,7 +35,7 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 	res, err := h.UserService.RegisterNewUser(r.Context(), registerRequest)
 	if err != nil {
-		log.Warn().Err(err).Msg("[Register Handler]")
+		log.Warn().Err(err).Msg("[Register - User Handler]")
 		response.WithError(w, err)
 		return
 	}
