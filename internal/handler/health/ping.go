@@ -15,7 +15,7 @@ import (
 // @Produce json
 // @Success 200 {object} response.Base
 // @Failure 503 {object} response.Base
-// @Router /v1/healths/ping [get]
+// @Router /v1/health/ping [get]
 func (h *HealthHandler) Ping(w http.ResponseWriter, _ *http.Request) {
 	message := h.HealthService.Ping()
 	response.WithMessage(w, http.StatusOK, message)
@@ -29,7 +29,7 @@ func (h *HealthHandler) Ping(w http.ResponseWriter, _ *http.Request) {
 // @Produce json
 // @Success 200 {object} response.Base
 // @Failure 503 {object} response.Base
-// @Router /v1/healths/ping-db [get]
+// @Router /v1/health/ping-db [get]
 func (h *HealthHandler) PingDB(w http.ResponseWriter, _ *http.Request) {
 	message, err := h.HealthService.PingDB()
 	if err != nil {

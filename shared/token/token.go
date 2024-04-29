@@ -25,14 +25,8 @@ func GenerateToken(user *UserData, params *GenerateTokenParams) (token Token, er
 		return
 	}
 
-	refreshToken, e := generateRefresh(user, params.RefreshTokenSecret, params.RefreshTokenExpiry)
-	if e != nil {
-		return
-	}
-
 	token = Token{
-		Token:        jwtToken,
-		RefreshToken: refreshToken,
+		AccessToken: jwtToken,
 	}
 
 	return
@@ -59,30 +53,6 @@ func GenerateJWT(user *UserData, tokenSecret string, tokenExpiry time.Duration) 
 	)
 
 	signedToken, err = token.SignedString([]byte(tokenSecret))
-	if err != nil {
-		return signedToken, err
-	}
-
-	return signedToken, err
-}
-
-func generateRefresh(user *UserData, refreshTokenSecret string, refreshTokenExpiry time.Duration) (signedToken string, err error) {
-	exp := time.Now().UTC().Add(refreshTokenExpiry)
-	claims := JWTRefreshToken{
-		StandardClaims: jwt.StandardClaims{
-			Issuer:    configs.Get().AppName,
-			ExpiresAt: exp.Unix(),
-			IssuedAt:  time.Now().UTC().Unix(),
-			Subject:   user.ID,
-		},
-	}
-
-	token := jwt.NewWithClaims(
-		jwtSigningMethod,
-		claims,
-	)
-
-	signedToken, err = token.SignedString([]byte(refreshTokenSecret))
 	if err != nil {
 		return signedToken, err
 	}
@@ -120,8 +90,7 @@ func GenerateVerifyEmailToken(userID uuid.UUID, email, username, secret string, 
 			IssuedAt:  time.Now().UTC().Unix(),
 			Subject:   userID.String(),
 		},
-		Email:    email,
-		Username: username,
+		Email: email,
 	}
 
 	token := jwt.NewWithClaims(
@@ -142,32 +111,6 @@ func GetUserUUID(token *jwt.Token) uuid.UUID {
 	claims := token.Claims.(jwt.MapClaims)
 
 	return uuid.MustParse(claims["sub"].(string))
-}
-
-// GenerateJWTGateway is
-func GenerateJWTGateway(user *UserData, tokenSecret string, tokenExpiry time.Duration) (signedToken string, err error) {
-	exp := time.Now().UTC().Add(tokenExpiry)
-	claims := JWTTokenGateway{
-		StandardClaims: jwt.StandardClaims{
-			Issuer:    configs.Get().AppName,
-			ExpiresAt: exp.Unix(),
-			IssuedAt:  time.Now().UTC().Unix(),
-			Subject:   user.ID,
-		},
-		Username: user.Username,
-	}
-
-	token := jwt.NewWithClaims(
-		jwtSigningMethod,
-		claims,
-	)
-
-	signedToken, err = token.SignedString([]byte(tokenSecret))
-	if err != nil {
-		return signedToken, err
-	}
-
-	return
 }
 
 func VerifyJwtToken(token, tokenSecret string) (*jwt.Token, error) {

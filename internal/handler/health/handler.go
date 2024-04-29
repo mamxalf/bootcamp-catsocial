@@ -20,7 +20,7 @@ func ProvideHealthHandler(healthService service.HealthService, jwt *middleware.J
 }
 
 func (h *HealthHandler) Router(r chi.Router) {
-	r.Route("/healths", func(r chi.Router) {
+	r.Route("/health", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Get("/ping", h.Ping)
 			r.Get("/ping-db", h.PingDB)
