@@ -1,6 +1,6 @@
 package response
 
-type RegisterResponse struct {
+type AuthResponse struct {
 	Name        string `json:"name"`
 	Email       string `json:"email"`
 	AccessToken string `json:"accessToken"`

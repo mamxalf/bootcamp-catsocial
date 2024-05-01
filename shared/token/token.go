@@ -42,9 +42,9 @@ func GenerateJWT(user *UserData, tokenSecret string, tokenExpiry time.Duration) 
 			IssuedAt:  time.Now().UTC().Unix(),
 			Subject:   user.ID,
 		},
-		Username: user.Username,
-		Email:    user.Email,
-		OwnerID:  user.ID,
+		Name:    user.Name,
+		Email:   user.Email,
+		OwnerID: user.ID,
 	}
 
 	token := jwt.NewWithClaims(
@@ -142,6 +142,6 @@ func ExtractTokenMetadata(token *jwt.Token) (*JWTToken, error) {
 	}
 
 	return &JWTToken{
-		Username: name,
+		Name: name,
 	}, nil
 }

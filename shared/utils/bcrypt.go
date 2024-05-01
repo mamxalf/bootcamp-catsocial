@@ -2,6 +2,7 @@ package utils
 
 import (
 	"catsocial/configs"
+
 	"golang.org/x/crypto/bcrypt"
 )
 

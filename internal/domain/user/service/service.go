@@ -9,7 +9,8 @@ import (
 )
 
 type UserService interface {
-	RegisterNewUser(ctx context.Context, req request.RegisterRequest) (res response.RegisterResponse, err error)
+	RegisterNewUser(ctx context.Context, req request.RegisterRequest) (res response.AuthResponse, err error)
+	LoginUser(ctx context.Context, req request.LoginRequest) (res response.AuthResponse, err error)
 }
 
 type UserServiceImpl struct {

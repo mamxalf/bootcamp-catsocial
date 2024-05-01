@@ -10,33 +10,33 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// Register sign up user.
-// @Summary Register User
-// @Description This endpoint for Register User.
+// Login sign in user.
+// @Summary Login User
+// @Description This endpoint for Login User.
 // @Tags User
 // @Accept  json
 // @Produce json
-// @Param request body request.RegisterRequest true "Request Body"
+// @Param request body request.LoginRequest true "Request Body"
 // @Success 200 {object} response.Base
 // @Failure 400 {object} response.Base
 // @Failure 404 {object} response.Base
 // @Failure 500 {object} response.Base
-// @Router /v1/user/register [post]
-func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
+// @Router /v1/user/login [post]
+func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
-	var registerRequest request.RegisterRequest
-	if err := decoder.Decode(&registerRequest); err != nil {
+	var loginRequest request.LoginRequest
+	if err := decoder.Decode(&loginRequest); err != nil {
 		response.WithError(w, failure.BadRequest(err))
 		return
 	}
 
-	if err := registerRequest.Validate(); err != nil {
+	if err := loginRequest.Validate(); err != nil {
 		response.WithError(w, failure.BadRequest(err))
 		return
 	}
-	res, err := h.UserService.RegisterNewUser(r.Context(), registerRequest)
+	res, err := h.UserService.LoginUser(r.Context(), loginRequest)
 	if err != nil {
-		log.Warn().Err(err).Msg("[Register - User Handler]")
+		log.Warn().Err(err).Msg("[Login - User Handler]")
 		response.WithError(w, err)
 		return
 	}

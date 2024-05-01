@@ -3,6 +3,7 @@ package user
 import (
 	"catsocial/http/middleware"
 	"catsocial/internal/domain/user/service"
+
 	"github.com/go-chi/chi"
 )
 
@@ -22,6 +23,7 @@ func (h *UserHandler) Router(r chi.Router) {
 	r.Route("/user", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Post("/register", h.Register)
+			r.Post("/login", h.Login)
 		})
 	})
 }

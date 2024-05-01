@@ -6,11 +6,12 @@ import (
 	"catsocial/shared/failure"
 	"catsocial/shared/token"
 	"context"
-	"github.com/rs/zerolog/log"
 	"net/http"
+
+	"github.com/rs/zerolog/log"
 )
 
-func (u *UserServiceImpl) RegisterNewUser(ctx context.Context, req request.RegisterRequest) (res response.RegisterResponse, err error) {
+func (u *UserServiceImpl) RegisterNewUser(ctx context.Context, req request.RegisterRequest) (res response.AuthResponse, err error) {
 	registerModel, err := req.ToModel()
 	if err != nil {
 		log.Error().Interface("params", req).Err(err).Msg("[Register - Service]")
@@ -33,9 +34,9 @@ func (u *UserServiceImpl) RegisterNewUser(ctx context.Context, req request.Regis
 	}
 
 	userData := &token.UserData{
-		ID:       lastInsertId.String(),
-		Username: req.Name,
-		Email:    req.Email,
+		ID:    lastInsertId.String(),
+		Name:  req.Name,
+		Email: req.Email,
 	}
 
 	generatedToken, err := token.GenerateToken(userData, generateTokenParams)
@@ -46,7 +47,7 @@ func (u *UserServiceImpl) RegisterNewUser(ctx context.Context, req request.Regis
 
 	// TODO: save user sessions if needed
 
-	res = response.RegisterResponse{
+	res = response.AuthResponse{
 		AccessToken: generatedToken.AccessToken,
 		Email:       req.Email,
 		Name:        req.Name,

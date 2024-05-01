@@ -3,6 +3,7 @@ package infras
 import (
 	"catsocial/configs"
 	"fmt"
+
 	"github.com/jmoiron/sqlx"
 
 	_ "github.com/lib/pq" // add this

@@ -1,9 +1,10 @@
 package validator
 
 import (
+	"sync"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/rs/zerolog/log"
-	"sync"
 )
 
 var once sync.Once

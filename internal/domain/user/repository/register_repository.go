@@ -3,12 +3,14 @@ package repository
 import (
 	"catsocial/internal/domain/user/model"
 	"catsocial/shared/failure"
+	"catsocial/shared/logger"
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/rs/zerolog/log"
-	"strings"
 )
 
 var registerQueries = struct {
@@ -38,7 +40,7 @@ func (repo *UserRepositoryInfra) Register(ctx context.Context, userRegister *mod
 				return
 			}
 		}
-		log.Error().Err(err).Msg("[UserRepository - execInsert] failed to execute query and scan id")
+		logger.ErrorWithStack(err)
 		err = failure.InternalError(err)
 		return
 	}
