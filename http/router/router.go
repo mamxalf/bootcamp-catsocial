@@ -2,12 +2,14 @@ package router
 
 import (
 	"catsocial/internal/handler/health"
+	"catsocial/internal/handler/user"
 
 	"github.com/go-chi/chi"
 )
 
 type DomainHandlers struct {
 	HealthHandler health.HealthHandler
+	UserHandler   user.UserHandler
 }
 
 type Router struct {
@@ -24,5 +26,6 @@ func ProvideRouter(domainHandlers DomainHandlers) Router {
 func (r *Router) SetupRoutes(mux *chi.Mux) {
 	mux.Route("/v1", func(rc chi.Router) {
 		r.DomainHandlers.HealthHandler.Router(rc)
+		r.DomainHandlers.UserHandler.Router(rc)
 	})
 }

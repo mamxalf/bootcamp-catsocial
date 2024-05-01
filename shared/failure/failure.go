@@ -85,10 +85,10 @@ func NotFound(message string) error {
 }
 
 // Conflict returns a new Failure with code for conflict situations.
-func Conflict(operationName string, domainName string, message string) error {
+func Conflict(operationName string, domainName string) error {
 	return &Failure{
 		Code:    http.StatusConflict,
-		Message: fmt.Sprintf("%s on %s: %s", operationName, domainName, message),
+		Message: fmt.Sprintf("%s: %s", operationName, domainName),
 	}
 }
 

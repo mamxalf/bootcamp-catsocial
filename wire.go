@@ -9,9 +9,12 @@ import (
 	"catsocial/http/middleware"
 	"catsocial/http/router"
 	"catsocial/infras"
-	"catsocial/internal/domain/health/repository"
-	"catsocial/internal/domain/health/service"
+	healthRepository "catsocial/internal/domain/health/repository"
+	healthService "catsocial/internal/domain/health/service"
+	userRepository "catsocial/internal/domain/user/repository"
+	userService "catsocial/internal/domain/user/service"
 	"catsocial/internal/handler/health"
+	"catsocial/internal/handler/user"
 	"github.com/google/wire"
 )
 
@@ -23,28 +26,30 @@ var persistences = wire.NewSet(
 	infras.ProvidePostgresConn,
 )
 
-//var domainUser = wire.NewSet(
-//	service.ProvideUserServiceImpl,
-//	wire.Bind(new(service.UserService), new(*service.UserServiceImpl)),
-//	repository.ProvideUserRepositoryPostgres,
-//	wire.Bind(new(repository.UserRepository), new(*repository.UserRepositoryPostgres)),
-//)
+var domainUser = wire.NewSet(
+	userService.ProvideUserServiceImpl,
+	wire.Bind(new(userService.UserService), new(*userService.UserServiceImpl)),
+	userRepository.ProvideUserRepositoryInfra,
+	wire.Bind(new(userRepository.UserRepository), new(*userRepository.UserRepositoryInfra)),
+)
 
 var domainHealth = wire.NewSet(
-	service.ProvideHealthServiceImpl,
-	wire.Bind(new(service.HealthService), new(*service.HealthServiceImpl)),
-	repository.ProvideHealthRepositoryInfra,
-	wire.Bind(new(repository.HealthRepository), new(*repository.HealthRepositoryInfra)),
+	healthService.ProvideHealthServiceImpl,
+	wire.Bind(new(healthService.HealthService), new(*healthService.HealthServiceImpl)),
+	healthRepository.ProvideHealthRepositoryInfra,
+	wire.Bind(new(healthRepository.HealthRepository), new(*healthRepository.HealthRepositoryInfra)),
 )
 
 // Wiring for all domains.
 var domains = wire.NewSet(
 	domainHealth,
+	domainUser,
 )
 
 var routing = wire.NewSet(
 	wire.Struct(new(router.DomainHandlers), "*"),
 	health.ProvideHealthHandler,
+	user.ProvideUserHandler,
 	router.ProvideRouter,
 )
 

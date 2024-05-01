@@ -25,11 +25,11 @@ type HTTP struct {
 }
 
 // ProvideHTTP is the provider for HTTP.
-func ProvideHTTP(db *infras.PostgresConn, config *configs.Config, rtr router.Router) *HTTP {
+func ProvideHTTP(db *infras.PostgresConn, config *configs.Config, router router.Router) *HTTP {
 	return &HTTP{
 		DB:     db,
 		Config: config,
-		Router: rtr,
+		Router: router,
 	}
 }
 

@@ -2,6 +2,7 @@ package configs
 
 import (
 	"sync"
+	"time"
 
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
@@ -22,9 +23,10 @@ type Config struct {
 	CorsEnable           bool     `mapstructure:"CORS_ENABLE"`
 	CorsMaxAgeSeconds    int      `mapstructure:"CORS_MAX_AGE_SECONDS"`
 
-	LogLevel   string `mapstructure:"LOG_LEVEL"`
-	JwtSecret  string `mapstructure:"JWT_SECRET"`
-	BcryptSalt string `mapstructure:"BCRYPT_SALT"`
+	LogLevel   string        `mapstructure:"LOG_LEVEL"`
+	JwtSecret  string        `mapstructure:"JWT_SECRET"`
+	JwtExpiry  time.Duration `mapstructure:"JWT_EXPIRY"`
+	BcryptSalt int           `mapstructure:"BCRYPT_SALT"`
 
 	DbName     string `mapstructure:"DB_NAME"`
 	DbPort     string `mapstructure:"DB_PORT"`
