@@ -16,7 +16,7 @@ var userQueries = struct {
 	getUser: "SELECT * FROM users %s",
 }
 
-func (repo *UserRepositoryInfra) GetUserByEmail(ctx context.Context, email string) (user *model.User, err error) {
+func (repo *UserRepositoryInfra) GetUserByEmail(ctx context.Context, email string) (user model.User, err error) {
 	whereClauses := " WHERE email = $1 LIMIT 1"
 	query := fmt.Sprintf(userQueries.getUser, whereClauses)
 	err = repo.DB.PG.GetContext(ctx, &user, query, email)
