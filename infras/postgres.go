@@ -2,15 +2,15 @@ package infras
 
 import (
 	"catsocial/configs"
-	"database/sql"
 	"fmt"
+	"github.com/jmoiron/sqlx"
 
 	_ "github.com/lib/pq" // add this
 	"github.com/rs/zerolog/log"
 )
 
 type PostgresConn struct {
-	PG *sql.DB
+	PG *sqlx.DB
 }
 
 func ProvidePostgresConn(config *configs.Config) *PostgresConn {
@@ -19,7 +19,7 @@ func ProvidePostgresConn(config *configs.Config) *PostgresConn {
 	}
 }
 
-func CreatePostgresDBConnection(config *configs.Config) *sql.DB {
+func CreatePostgresDBConnection(config *configs.Config) *sqlx.DB {
 	connStr := fmt.Sprintf(
 		"postgresql://%s:%s@%s:%s/%s?%s",
 		config.DbUsername,
@@ -28,7 +28,7 @@ func CreatePostgresDBConnection(config *configs.Config) *sql.DB {
 		config.DbPort,
 		config.DbName,
 		config.DbParams)
-	db, err := sql.Open("postgres", connStr)
+	db, err := sqlx.Open("postgres", connStr)
 	if err != nil {
 		log.
 			Fatal().
