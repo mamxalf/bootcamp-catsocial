@@ -15,8 +15,9 @@ import (
 func (u *CatServiceImpl) InsertNewCat(ctx context.Context, req request.InsertCatRequest) (res response.CatResponse, err error) {
 	return
 }
-func (u *CatServiceImpl) IGetCatData(ctx context.Context, catID uuid.UUID) (res response.CatResponse, err error) {
-	return
+func (u *CatServiceImpl) GetCatData(ctx context.Context, catID uuid.UUID) (res response.CatResponse, err error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (u *CatServiceImpl) GetAllCatData(ctx context.Context) (res response.CatResponse, err error) {
