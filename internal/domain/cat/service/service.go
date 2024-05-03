@@ -15,7 +15,7 @@ type CatService interface {
 	GetCatData(ctx context.Context, catID string) (res response.CatResponse, err error)
 	GetAllCatData(ctx context.Context) (res []response.CatResponse, err error)
 	UpdateCatData(ctx context.Context, catID uuid.UUID, req request.UpdateCatRequest) (res response.CatResponse, err error)
-	DeleteCatData(ctx context.Context, catID uuid.UUID) (res response.CatResponse, err error)
+	DeleteCatData(ctx context.Context, catID string) (res response.CatResponse, err error)
 }
 type CatServiceImpl struct {
 	CatRepository repository.CatRepository

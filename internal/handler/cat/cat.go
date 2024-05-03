@@ -112,6 +112,11 @@ func (h *CatHandler) UpdateCatData(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} response.Base
 // @Router /v1/cat/{id} [delete]
 func (h *CatHandler) DeleteCatData(w http.ResponseWriter, r *http.Request) {
-	res := "success"
+	idStr := chi.URLParam(r, "id")
+	res, err := h.CatService.DeleteCatData(r.Context(), idStr)
+	if err != nil {
+		response.WithError(w, err)
+		return
+	}
 	response.WithJSON(w, http.StatusOK, res)
 }
