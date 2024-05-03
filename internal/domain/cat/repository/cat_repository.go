@@ -2,15 +2,23 @@ package repository
 
 import (
 	"catsocial/internal/domain/cat/model"
+	"catsocial/shared/failure"
+	"catsocial/shared/logger"
 	"context"
+	"database/sql"
+	"errors"
+	"fmt"
+
 	"github.com/google/uuid"
 )
 
-// var catQueries = struct {
-// 	cat string
-// }{
-// 	cat: "INSERT INTO cats %s VALUES %s RETURNING id",
-// }
+var catQueries = struct {
+	Insertcat string
+	getCat    string
+}{
+	Insertcat: "INSERT INTO cats %s VALUES %s RETURNING id",
+	getCat:    "SELECT * FROM cats %s",
+}
 
 func (c *CatRepositoryInfra) Insert(ctx context.Context, cat *model.InsertCat) (lastInsertID uuid.UUID, err error) {
 	//TODO implement me
@@ -18,8 +26,19 @@ func (c *CatRepositoryInfra) Insert(ctx context.Context, cat *model.InsertCat) (
 }
 
 func (c *CatRepositoryInfra) Find(ctx context.Context, catID uuid.UUID) (cat model.Cat, err error) {
-	//TODO implement me
-	panic("implement me")
+	whereClauses := " WHERE id = $1 LIMIT 1"
+	query := fmt.Sprintf(catQueries.getCat, whereClauses)
+	err = c.DB.PG.GetContext(ctx, &cat, query, catID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			err = failure.NotFound("Cat not found!")
+			return
+		}
+		logger.ErrorWithStack(err)
+		err = failure.InternalError(err)
+		return
+	}
+	return
 }
 
 func (c *CatRepositoryInfra) FindAll(ctx context.Context) (cats []model.Cat, err error) {
