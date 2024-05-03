@@ -9,12 +9,16 @@ import (
 	"catsocial/http/middleware"
 	"catsocial/http/router"
 	"catsocial/infras"
+	catRepository "catsocial/internal/domain/cat/repository"
+	catService "catsocial/internal/domain/cat/service"
 	healthRepository "catsocial/internal/domain/health/repository"
 	healthService "catsocial/internal/domain/health/service"
 	userRepository "catsocial/internal/domain/user/repository"
 	userService "catsocial/internal/domain/user/service"
+	"catsocial/internal/handler/cat"
 	"catsocial/internal/handler/health"
 	"catsocial/internal/handler/user"
+
 	"github.com/google/wire"
 )
 
@@ -39,17 +43,25 @@ var domainHealth = wire.NewSet(
 	healthRepository.ProvideHealthRepositoryInfra,
 	wire.Bind(new(healthRepository.HealthRepository), new(*healthRepository.HealthRepositoryInfra)),
 )
+var domainCat = wire.NewSet(
+	catService.ProvideCatServiceImpl,
+	wire.Bind(new(catService.CatService), new(*catService.CatServiceImpl)),
+	catRepository.ProvideCatRepositoryInfra,
+	wire.Bind(new(catRepository.CatRepository), new(*catRepository.CatRepositoryInfra)),
+)
 
 // Wiring for all domains.
 var domains = wire.NewSet(
 	domainHealth,
 	domainUser,
+	domainCat,
 )
 
 var routing = wire.NewSet(
 	wire.Struct(new(router.DomainHandlers), "*"),
 	health.ProvideHealthHandler,
 	user.ProvideUserHandler,
+	cat.ProvideCatHandler,
 	router.ProvideRouter,
 )
 
