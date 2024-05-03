@@ -17,10 +17,9 @@ type CatRepository interface {
 	Delete(ctx context.Context, catID uuid.UUID) (deletedID uuid.UUID, err error)
 
 	// Match Request Interface
-	MatchRequest(ctx context.Context, requestMatch *model.InsertMatch) (match *model.Match, err error)
+	MatchRequest(ctx context.Context, insertMatch *model.InsertMatch) (lastInsertId uuid.UUID, err error)
 	FindAllMatches(ctx context.Context) (matches []model.Match, err error)
-	Approve(ctx context.Context, matchID uuid.UUID) (err error)
-	Reject(ctx context.Context, matchID uuid.UUID) (err error)
+	IsApprove(ctx context.Context, matchID uuid.UUID, isApprove bool) (err error)
 	DeleteMatch(ctx context.Context, matchID uuid.UUID) (err error)
 }
 
