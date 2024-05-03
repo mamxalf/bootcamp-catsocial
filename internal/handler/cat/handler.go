@@ -21,6 +21,10 @@ func ProvideCatHandler(catService service.CatService, jwt *middleware.JWT) CatHa
 
 func (h *CatHandler) Router(r chi.Router) {
 	r.Route("/cat", func(r chi.Router) {
-		r.Post("/add", h.AddCat)
+		r.Post("/add", h.InsertNewCat)
+		r.Get("/:id", h.Find)
+		r.Get("/", h.FindAllCatData)
+		r.Put("/:id", h.UpdateCatData)
+		r.Delete("/:id", h.DeleteCatData)
 	})
 }
