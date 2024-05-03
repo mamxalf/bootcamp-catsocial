@@ -1,7 +1,7 @@
 BEGIN;
 
 CREATE TABLE IF NOT EXISTS matches (
-                                    id UUID NOT NULL PRIMARY KEY DEFAULT uuid_generate_v4(), -- uuid v4
+                                    id SERIAL PRIMARY KEY,
                                     issued_user_id UUID NOT NULL,
                                     match_cat_d UUID NOT NULL,
                                     user_cat_id UUID NOT NULL,
