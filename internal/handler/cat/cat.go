@@ -75,7 +75,11 @@ func (h *CatHandler) Find(w http.ResponseWriter, r *http.Request) {
 // @Failure 503 {object} response.Base
 // @Router /v1/cat/ [get]
 func (h *CatHandler) FindAllCatData(w http.ResponseWriter, r *http.Request) {
-	res := "success"
+	res, err := h.CatService.GetAllCatData(r.Context())
+	if err != nil {
+		response.WithError(w, err)
+		return
+	}
 	response.WithJSON(w, http.StatusOK, res)
 }
 

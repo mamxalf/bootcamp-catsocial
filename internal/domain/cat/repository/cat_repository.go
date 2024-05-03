@@ -42,8 +42,19 @@ func (c *CatRepositoryInfra) Find(ctx context.Context, catID uuid.UUID) (cat mod
 }
 
 func (c *CatRepositoryInfra) FindAll(ctx context.Context) (cats []model.Cat, err error) {
-	//TODO implement me
-	panic("implement me")
+	whereClauses := " LIMIT 10"
+	query := fmt.Sprintf(catQueries.getCat, whereClauses)
+	err = c.DB.PG.SelectContext(ctx, &cats, query)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			err = failure.NotFound("Cat not found!")
+			return
+		}
+		logger.ErrorWithStack(err)
+		err = failure.InternalError(err)
+		return
+	}
+	return
 }
 
 func (c *CatRepositoryInfra) Update(ctx context.Context, catID uuid.UUID, cat *model.Cat) (updatedID uuid.UUID, err error) {
