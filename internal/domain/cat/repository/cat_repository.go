@@ -60,35 +60,46 @@ func (c *CatRepositoryInfra) Find(ctx context.Context, userID uuid.UUID, catID u
 }
 
 func (c *CatRepositoryInfra) FindAll(ctx context.Context, userId uuid.UUID, params request.CatQueryParams) (cats []model.Cat, err error) {
-	baseQuery := catQueries.getCat
+	baseQuery := catQueries.getCat // Assuming this starts with "SELECT ... FROM cats WHERE 1=1"
 	var args []interface{}
 	var conditions []string
 
-	conditions = append(conditions, "user_id = $1")
-	args = append(args, userId)
+	// Always include the user_id in the query
+	if params.Owned {
+		conditions = append(conditions, fmt.Sprintf("user_id = $%d", len(args)+1))
+		args = append(args, userId)
+	}
 
+	// Check if ID is specified
 	if params.ID != "" {
-		conditions = append(conditions, "id = $2")
+		conditions = append(conditions, fmt.Sprintf("id = $%d", len(args)+1))
 		args = append(args, params.ID)
 	}
+
+	// Check if Race is specified
 	if params.Race != "" {
-		conditions = append(conditions, "race = $3")
+		conditions = append(conditions, fmt.Sprintf("race = $%d", len(args)+1))
 		args = append(args, params.Race)
 	}
+
+	// Check if Sex is specified
 	if params.Sex != "" {
-		conditions = append(conditions, "sex = $4")
+		conditions = append(conditions, fmt.Sprintf("sex = $%d", len(args)+1))
 		args = append(args, params.Sex == "male")
 	}
+
+	// Check if Search term is specified
 	if params.Search != "" {
-		conditions = append(conditions, "name ILIKE $5")
+		conditions = append(conditions, fmt.Sprintf("name ILIKE $%d", len(args)+1))
 		args = append(args, "%"+params.Search+"%")
 	}
 
+	// Adding the conditions to the base query
 	if len(conditions) > 0 {
 		baseQuery += " AND " + strings.Join(conditions, " AND ")
 	}
 
-	// Adding pagination
+	// Adding pagination with proper indexing
 	baseQuery += fmt.Sprintf(" LIMIT $%d OFFSET $%d", len(args)+1, len(args)+2)
 	args = append(args, params.Limit, params.Offset)
 
@@ -97,7 +108,7 @@ func (c *CatRepositoryInfra) FindAll(ctx context.Context, userId uuid.UUID, para
 	if err != nil {
 		return nil, err
 	}
-	return
+	return cats, nil
 }
 
 func (c *CatRepositoryInfra) Update(ctx context.Context, catID uuid.UUID, cat model.Cat) (updatedID uuid.UUID, err error) {
