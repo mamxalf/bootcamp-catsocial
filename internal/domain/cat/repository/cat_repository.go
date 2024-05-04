@@ -88,6 +88,15 @@ func (c *CatRepositoryInfra) FindAll(ctx context.Context, userId uuid.UUID, para
 		args = append(args, params.Sex == "male")
 	}
 
+	if params.AgeInMonth != "" {
+		operator, age, err := parseAgeFilter(params.AgeInMonth)
+		if err != nil {
+			return nil, err
+		}
+		conditions = append(conditions, fmt.Sprintf("age %s $%d", operator, len(args)+1))
+		args = append(args, age)
+	}
+
 	// Check if Search term is specified
 	if params.Search != "" {
 		conditions = append(conditions, fmt.Sprintf("name ILIKE $%d", len(args)+1))
@@ -109,6 +118,40 @@ func (c *CatRepositoryInfra) FindAll(ctx context.Context, userId uuid.UUID, para
 		return nil, err
 	}
 	return cats, nil
+}
+
+func parseAgeFilter(input string) (operator string, value int, err error) {
+	// Remove any spaces and check if the string is empty
+	input = strings.TrimSpace(input)
+	if input == "" {
+		return "", 0, errors.New("input cannot be empty")
+	}
+
+	// Determine the operator and the subsequent value
+	if strings.HasPrefix(input, ">=") || strings.HasPrefix(input, "=>") {
+		value, err = strconv.Atoi(input[2:])
+		operator = ">="
+	} else if strings.HasPrefix(input, "<=") || strings.HasPrefix(input, "=<") {
+		value, err = strconv.Atoi(input[2:])
+		operator = "<="
+	} else if strings.HasPrefix(input, "<") {
+		value, err = strconv.Atoi(input[2:])
+		operator = "<"
+	} else if strings.HasPrefix(input, ">") {
+		value, err = strconv.Atoi(input[2:])
+		operator = ">"
+	} else if strings.HasPrefix(input, "=") {
+		value, err = strconv.Atoi(input[1:])
+		operator = "="
+	} else {
+		return "", 0, errors.New("invalid format or operator")
+	}
+
+	if err != nil {
+		return "", 0, fmt.Errorf("failed to parse number from input: %v", err)
+	}
+
+	return operator, value, nil
 }
 
 func (c *CatRepositoryInfra) Update(ctx context.Context, catID uuid.UUID, cat model.Cat) (updatedID uuid.UUID, err error) {

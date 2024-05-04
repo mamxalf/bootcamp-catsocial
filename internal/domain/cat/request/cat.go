@@ -79,7 +79,7 @@ type CatQueryParams struct {
 	Race       string `json:"race" validate:"omitempty,oneof='Persian' 'Maine Coon' 'Siamese' 'Ragdoll' 'Bengal' 'Sphynx' 'British Shorthair' 'Abyssinian' 'Scottish Fold' 'Birman'"`
 	Sex        string `json:"sex" validate:"omitempty,oneof='male' 'female'"`
 	HasMatched bool   `json:"hasMatched" validate:"omitempty"`
-	AgeInMonth string `json:"ageInMonth" validate:"omitempty,ageInMonthValidator"`
+	AgeInMonth string `json:"ageInMonth" validate:"omitempty"`
 	Owned      bool   `json:"owned" validate:"omitempty"`
 	Search     string `json:"search" validate:"omitempty,min=1"`
 }
