@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
+	"strconv"
 	"strings"
 )
 
@@ -121,9 +122,59 @@ func (c *CatRepositoryInfra) FindAll(ctx context.Context, userId uuid.UUID, para
 	return
 }
 
-func (c *CatRepositoryInfra) Update(ctx context.Context, catID uuid.UUID, cat *model.Cat) (updatedID uuid.UUID, err error) {
-	//TODO implement me
-	panic("implement me")
+func (c *CatRepositoryInfra) Update(ctx context.Context, catID uuid.UUID, cat model.Cat) (updatedID uuid.UUID, err error) {
+	var setParts []string
+	var args []interface{}
+	argID := 1
+
+	// Dynamically build the SQL query based on provided fields
+	if cat.Name != "" {
+		setParts = append(setParts, "name = $"+strconv.Itoa(argID))
+		args = append(args, cat.Name)
+		argID++
+	}
+	if cat.Race != "" {
+		setParts = append(setParts, "race = $"+strconv.Itoa(argID))
+		args = append(args, cat.Race)
+		argID++
+	}
+	if cat.Sex { // Assuming `false` is not a valid update, adjust as needed
+		setParts = append(setParts, "sex = $"+strconv.Itoa(argID))
+		args = append(args, cat.Sex)
+		argID++
+	}
+	if cat.Age != 0 {
+		setParts = append(setParts, "age = $"+strconv.Itoa(argID))
+		args = append(args, cat.Age)
+		argID++
+	}
+	if cat.Descriptions != "" {
+		setParts = append(setParts, "descriptions = $"+strconv.Itoa(argID))
+		args = append(args, cat.Descriptions)
+		argID++
+	}
+	if cat.Images != nil {
+		setParts = append(setParts, "images_url = $"+strconv.Itoa(argID))
+		args = append(args, pq.Array(cat.Images))
+		argID++
+	}
+
+	if len(setParts) == 0 {
+		return // No updates to perform
+	}
+
+	// Construct the full SQL statement
+	updateQuery := "UPDATE cats SET " + strings.Join(setParts, ", ") + " WHERE id = $" + strconv.Itoa(argID)
+	args = append(args, catID)
+
+	// Execute the query
+	_, err = c.DB.PG.ExecContext(ctx, updateQuery, args...)
+	if err != nil {
+		logger.ErrorWithStack(err)
+		err = failure.InternalError(err)
+		return
+	}
+	return
 }
 
 func (c *CatRepositoryInfra) Delete(ctx context.Context, catID uuid.UUID) (deletedID uuid.UUID, err error) {

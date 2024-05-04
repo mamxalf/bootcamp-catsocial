@@ -59,7 +59,7 @@ func (h *CatHandler) InsertNewCat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.WithJSON(w, http.StatusOK, res)
+	response.WithJSON(w, http.StatusCreated, res)
 }
 
 // Find cat by id.
@@ -186,13 +186,52 @@ func (h *CatHandler) FindAllCatData(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Security BearerToken
 // @Param id path string true "ID by cat"
+// @Param request body request.UpdateCatRequest true "Request Body"
 // @Success 200 {object} response.Base
 // @Failure 400 {object} response.Base
 // @Failure 401 {object} response.Base
 // @Failure 404 {object} response.Base
 // @Router /v1/cat/{id} [put]
 func (h *CatHandler) UpdateCatData(w http.ResponseWriter, r *http.Request) {
-	res := "success"
+	idStr := chi.URLParam(r, "id")
+	catID, err := uuid.Parse(idStr)
+	if err != nil {
+		log.Warn().Msg(err.Error())
+		err = failure.Unauthorized("invalid format cat id")
+		response.WithError(w, err)
+		return
+	}
+	decoder := json.NewDecoder(r.Body)
+	var catRequest request.UpdateCatRequest
+	if err := decoder.Decode(&catRequest); err != nil {
+		response.WithError(w, failure.BadRequest(err))
+		return
+	}
+
+	if err := catRequest.Validate(); err != nil {
+		response.WithError(w, failure.BadRequest(err))
+		return
+	}
+
+	claimUser, ok := middleware.GetClaimsUser(r.Context()).(jwt.MapClaims)
+	if !ok {
+		log.Warn().Msg("invalid claim jwt")
+		err := failure.Unauthorized("invalid claim jwt")
+		response.WithError(w, err)
+		return
+	}
+	_, err = uuid.Parse(claimUser["ownerID"].(string))
+	if err != nil {
+		log.Warn().Msg(err.Error())
+		err = failure.Unauthorized("invalid format user_id")
+		response.WithError(w, err)
+		return
+	}
+	res, err := h.CatService.UpdateCatData(r.Context(), catID, catRequest)
+	if err != nil {
+		response.WithError(w, err)
+		return
+	}
 	response.WithJSON(w, http.StatusOK, res)
 }
 
@@ -210,6 +249,20 @@ func (h *CatHandler) UpdateCatData(w http.ResponseWriter, r *http.Request) {
 // @Router /v1/cat/{id} [delete]
 func (h *CatHandler) DeleteCatData(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
+	claimUser, ok := middleware.GetClaimsUser(r.Context()).(jwt.MapClaims)
+	if !ok {
+		log.Warn().Msg("invalid claim jwt")
+		err := failure.Unauthorized("invalid claim jwt")
+		response.WithError(w, err)
+		return
+	}
+	_, err := uuid.Parse(claimUser["ownerID"].(string))
+	if err != nil {
+		log.Warn().Msg(err.Error())
+		err = failure.Unauthorized("invalid format user_id")
+		response.WithError(w, err)
+		return
+	}
 	res, err := h.CatService.DeleteCatData(r.Context(), idStr)
 	if err != nil {
 		response.WithError(w, err)

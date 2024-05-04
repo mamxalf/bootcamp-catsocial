@@ -43,7 +43,7 @@ func (r *InsertCatRequest) ToModel() (cat model.InsertCat, err error) {
 type UpdateCatRequest struct {
 	Name        string   `validate:"required" json:"name"`
 	Race        string   `validate:"required" json:"race"`
-	Sex         bool     `validate:"required" json:"sex"`
+	Sex         string   `validate:"required,oneof='male' 'female'"`
 	AgeInMonth  int      `validate:"required" json:"ageInMonth"`
 	Description string   `validate:"required" json:"description"`
 	ImageUrls   []string `validate:"required" json:"imageUrls"`
@@ -54,11 +54,17 @@ func (r *UpdateCatRequest) Validate() (err error) {
 	return validate.Struct(r)
 }
 
-func (r *UpdateCatRequest) ToModel() (cat model.InsertCat, err error) {
-	cat = model.InsertCat{
+func (r *UpdateCatRequest) ToModel() (cat model.Cat, err error) {
+	var sex bool
+	if r.Sex == "male" {
+		sex = true
+	} else {
+		sex = false
+	}
+	cat = model.Cat{
 		Name:         r.Name,
 		Race:         r.Race,
-		Sex:          r.Sex,
+		Sex:          sex,
 		Age:          r.AgeInMonth,
 		Descriptions: r.Description,
 		Images:       r.ImageUrls,

@@ -74,6 +74,17 @@ func (u *CatServiceImpl) GetAllCatData(ctx context.Context, userId uuid.UUID, pa
 }
 
 func (u *CatServiceImpl) UpdateCatData(ctx context.Context, catID uuid.UUID, req request.UpdateCatRequest) (res response.CatResponse, err error) {
+	cat, err := req.ToModel()
+	if err != nil {
+		logger.ErrorWithStack(err)
+		err = failure.BadRequestFromString("doesn't pass validation")
+		return
+	}
+	_, err = u.CatRepository.Update(ctx, catID, cat)
+	if err != nil {
+		logger.ErrorWithStack(err)
+		return
+	}
 	return
 }
 
