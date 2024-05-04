@@ -21,11 +21,15 @@ func ProvideCatHandler(catService service.CatService, jwt *middleware.JWT) CatHa
 
 func (h *CatHandler) Router(r chi.Router) {
 	r.Route("/cat", func(r chi.Router) {
+		r.Use(h.JWTMiddleware.VerifyToken)
+		// Cat Handler
 		r.Post("/add", h.InsertNewCat)
 		r.Get("/{id}", h.Find)
 		r.Get("/", h.FindAllCatData)
 		r.Put("/{id}", h.UpdateCatData)
 		r.Delete("/{id}", h.DeleteCatData)
+
+		// Match Handler
 		r.Post("/match", h.InsertNewMatch)
 		r.Get("/match", h.FindAllMatchData)
 		r.Post("/match/approve", h.ApproveCatMatch)

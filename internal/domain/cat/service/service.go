@@ -13,7 +13,7 @@ import (
 
 type CatService interface {
 	// Cat Service Interface
-	InsertNewCat(ctx context.Context, req request.InsertCatRequest) (res response.CatResponse, err error)
+	InsertNewCat(ctx context.Context, req request.InsertCatRequest) (message string, err error)
 	GetCatData(ctx context.Context, catID string) (res response.CatResponse, err error)
 	GetAllCatData(ctx context.Context) (res []response.CatResponse, err error)
 	UpdateCatData(ctx context.Context, catID uuid.UUID, req request.UpdateCatRequest) (res response.CatResponse, err error)

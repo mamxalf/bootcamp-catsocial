@@ -1,48 +1,33 @@
 package service
 
 import (
-	"catsocial/internal/domain/cat/model"
 	"catsocial/internal/domain/cat/request"
 	"catsocial/internal/domain/cat/response"
+	"catsocial/shared/logger"
 
 	"catsocial/shared/failure"
 	// "catsocial/shared/token"
 	"context"
-	"net/http"
-
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 )
 
-func (u *CatServiceImpl) InsertNewCat(ctx context.Context, req request.InsertCatRequest) (res response.CatResponse, err error) {
-	cat := model.InsertCat{
-		Name:         req.Name,
-		Race:         req.Race,
-		Sex:          req.Sex,
-		Age:          req.AgeInMonth,
-		Descriptions: req.Description,
-		Images:       req.ImageUrls,
-	}
-
-	_, err = u.CatRepository.Insert(ctx, &cat)
+func (u *CatServiceImpl) InsertNewCat(ctx context.Context, req request.InsertCatRequest) (message string, err error) {
+	cat, err := req.ToModel()
 	if err != nil {
-		if failure.GetCode(err) == http.StatusConflict {
-			log.Error().Interface("params", req).Err(err).Msg("[InsertNewCat - Service] Cat should be unique")
-			return
-		}
-		log.Error().Interface("params", req).Err(err).Msg("[InsertNewCat - Service] Internal Error")
+		logger.ErrorWithStack(err)
+		err = failure.BadRequestFromString("doesn't pass validation")
 		return
 	}
 
-	res = response.CatResponse{
-		Name:        req.Name,
-		Race:        req.Race,
-		Sex:         req.Sex,
-		AgeInMonth:  req.AgeInMonth,
-		Description: req.Description,
-		ImageUrls:   req.ImageUrls,
+	_, err = u.CatRepository.Insert(ctx, cat)
+	if err != nil {
+		logger.ErrorWithStack(err)
+		err = failure.BadRequestFromString("can't insert new cat")
+		return
 	}
 
+	message = "successfully insert new cat"
 	return
 }
 func (u *CatServiceImpl) GetCatData(ctx context.Context, catID string) (res response.CatResponse, err error) {

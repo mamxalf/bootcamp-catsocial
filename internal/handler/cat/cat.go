@@ -1,22 +1,26 @@
 package cat
 
 import (
+	"catsocial/http/middleware"
 	"catsocial/internal/domain/cat/request"
 	"catsocial/shared/failure"
 	"catsocial/shared/response"
 	"encoding/json"
+	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 	"net/http"
 
 	"github.com/go-chi/chi"
 	"github.com/rs/zerolog/log"
 )
 
-// AddCat adds a new cat.
+// InsertNewCat adds a new cat.
 // @Summary Add a new cat
 // @Description This endpoint is used to add a new cat.
 // @Tags Cat
 // @Accept json
 // @Produce json
+// @Security BearerToken
 // @Param request body request.InsertCatRequest true "Request Body"
 // @Success 201 {object} response.Base
 // @Failure 400 {object} response.Base
@@ -34,9 +38,23 @@ func (h *CatHandler) InsertNewCat(w http.ResponseWriter, r *http.Request) {
 		response.WithError(w, failure.BadRequest(err))
 		return
 	}
+	claimUser, ok := middleware.GetClaimsUser(r.Context()).(jwt.MapClaims)
+	if !ok {
+		log.Warn().Msg("invalid claim jwt")
+		err := failure.Unauthorized("invalid claim jwt")
+		response.WithError(w, err)
+		return
+	}
+	userID, err := uuid.Parse(claimUser["ownerID"].(string))
+	if err != nil {
+		log.Warn().Msg(err.Error())
+		err = failure.Unauthorized("invalid format user_id")
+		response.WithError(w, err)
+		return
+	}
+	catRequest.UserID = userID
 	res, err := h.CatService.InsertNewCat(r.Context(), catRequest)
 	if err != nil {
-		log.Warn().Err(err).Msg("[Add New Cat]")
 		response.WithError(w, err)
 		return
 	}

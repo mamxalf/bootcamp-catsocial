@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/lib/pq"
 	"strings"
 
 	"github.com/google/uuid"
@@ -23,24 +24,28 @@ var catQueries = struct {
 	deleteCat: "DELETE FROM cats WHERE id = $1",
 }
 
-func (c *CatRepositoryInfra) Insert(ctx context.Context, cat *model.InsertCat) (lastInsertID uuid.UUID, err error) {
-	fieldsStr, valueListStr, args := composeInsertFieldAndParamsCat(*cat)
-	commandQuery := fmt.Sprintf(catQueries.Insertcat, fieldsStr, strings.Join(valueListStr, ","))
-
-	stmt, err := c.DB.PG.PrepareContext(ctx, commandQuery)
+func (c *CatRepositoryInfra) Insert(ctx context.Context, cat model.InsertCat) (lastInsertID uuid.UUID, err error) {
+	//fieldsStr, valueListStr, args := composeInsertFieldAndParamsCat(*cat)
+	//commandQuery := fmt.Sprintf(catQueries.Insertcat, fieldsStr, strings.Join(valueListStr, ","))
+	//
+	//stmt, err := c.DB.PG.PrepareContext(ctx, commandQuery)
+	//if err != nil {
+	//	logger.ErrorWithStack(err)
+	//	err = failure.InternalError(err)
+	//	return
+	//}
+	//defer stmt.Close()
+	//
+	//err = stmt.QueryRowContext(ctx, args...).Scan(&lastInsertID)
+	query := `INSERT INTO cats (user_id, name, race, sex, age, descriptions, images_url)
+              VALUES ($1, $2, $3, $4, $5, $6, $7)`
+	_, err = c.DB.PG.ExecContext(ctx, query, cat.UserID, cat.Name, cat.Race, cat.Sex, cat.Age, cat.Descriptions, pq.Array(cat.Images))
 	if err != nil {
 		logger.ErrorWithStack(err)
 		err = failure.InternalError(err)
 		return
 	}
-	defer stmt.Close()
 
-	err = stmt.QueryRowContext(ctx, args...).Scan(&lastInsertID)
-	if err != nil {
-		logger.ErrorWithStack(err)
-		err = failure.InternalError(err)
-		return
-	}
 	return lastInsertID, nil
 }
 
