@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS cats (
     age int NOT NULL DEFAULT 1,
     descriptions TEXT,
     images_url TEXT [],
+    has_matched boolean NOT NULL DEFAULT FALSE,
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP

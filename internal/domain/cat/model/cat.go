@@ -16,6 +16,7 @@ type Cat struct {
 	Age          int            `db:"age"`
 	Descriptions string         `db:"descriptions"`
 	Images       pq.StringArray `db:"images_url"`
+	HasMatched   bool           `db:"has_matched"`
 	CreatedAt    time.Time      `db:"created_at"`
 	UpdatedAt    time.Time      `db:"updated_at"`
 }

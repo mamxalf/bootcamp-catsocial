@@ -13,6 +13,7 @@ type CatResponse struct {
 	AgeInMonth  int       `json:"ageInMonth"`
 	Description string    `json:"description"`
 	ImageUrls   []string  `json:"imageUrls"`
+	HasMatched  bool      `json:"hasMatched"`
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
 }

@@ -60,19 +60,6 @@ func (c *CatRepositoryInfra) Find(ctx context.Context, userID uuid.UUID, catID u
 }
 
 func (c *CatRepositoryInfra) FindAll(ctx context.Context, userId uuid.UUID, params request.CatQueryParams) (cats []model.Cat, err error) {
-	//whereClauses := " LIMIT 10"
-	//query := fmt.Sprintf(catQueries.getCat, whereClauses)
-	//err = c.DB.PG.SelectContext(ctx, &cats, query)
-	//if err != nil {
-	//	if errors.Is(err, sql.ErrNoRows) {
-	//		err = failure.NotFound("Cat not found!")
-	//		return
-	//	}
-	//	logger.ErrorWithStack(err)
-	//	err = failure.InternalError(err)
-	//	return
-	//}
-	//return
 	baseQuery := catQueries.getCat
 	var args []interface{}
 	var conditions []string

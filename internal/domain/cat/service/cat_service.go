@@ -94,6 +94,7 @@ func (u *CatServiceImpl) GetAllCatData(ctx context.Context, userId uuid.UUID, pa
 			AgeInMonth:  cat.Age,
 			Description: cat.Descriptions,
 			ImageUrls:   cat.Images,
+			HasMatched:  cat.HasMatched,
 		})
 
 	}
