@@ -135,10 +135,10 @@ func parseAgeFilter(input string) (operator string, value int, err error) {
 		value, err = strconv.Atoi(input[2:])
 		operator = "<="
 	} else if strings.HasPrefix(input, "<") {
-		value, err = strconv.Atoi(input[2:])
+		value, err = strconv.Atoi(input[1:])
 		operator = "<"
 	} else if strings.HasPrefix(input, ">") {
-		value, err = strconv.Atoi(input[2:])
+		value, err = strconv.Atoi(input[1:])
 		operator = ">"
 	} else if strings.HasPrefix(input, "=") {
 		value, err = strconv.Atoi(input[1:])
