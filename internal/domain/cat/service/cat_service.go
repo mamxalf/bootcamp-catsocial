@@ -79,7 +79,7 @@ func (u *CatServiceImpl) GetAllCatData(ctx context.Context, userId uuid.UUID, pa
 	if err != nil {
 		return
 	}
-	if len(catList) == 0 {
+	if len(cats) == 0 {
 		return []response.CatResponse{}, nil
 	}
 	for _, cat := range cats {
