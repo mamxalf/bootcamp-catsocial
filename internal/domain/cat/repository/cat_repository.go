@@ -27,29 +27,20 @@ var catQueries = struct {
 	deleteCat: "DELETE FROM cats WHERE id = $1",
 }
 
-func (c *CatRepositoryInfra) Insert(ctx context.Context, cat model.InsertCat) (lastInsertID uuid.UUID, err error) {
-	//fieldsStr, valueListStr, args := composeInsertFieldAndParamsCat(*cat)
-	//commandQuery := fmt.Sprintf(catQueries.Insertcat, fieldsStr, strings.Join(valueListStr, ","))
-	//
-	//stmt, err := c.DB.PG.PrepareContext(ctx, commandQuery)
-	//if err != nil {
-	//	logger.ErrorWithStack(err)
-	//	err = failure.InternalError(err)
-	//	return
-	//}
-	//defer stmt.Close()
-	//
-	//err = stmt.QueryRowContext(ctx, args...).Scan(&lastInsertID)
+func (c *CatRepositoryInfra) Insert(ctx context.Context, cat model.InsertCat) (newCat *model.Cat, err error) {
 	query := `INSERT INTO cats (user_id, name, race, sex, age, descriptions, images_url)
-              VALUES ($1, $2, $3, $4, $5, $6, $7)`
-	_, err = c.DB.PG.ExecContext(ctx, query, cat.UserID, cat.Name, cat.Race, cat.Sex, cat.Age, cat.Descriptions, pq.Array(cat.Images))
+              VALUES ($1, $2, $3, $4, $5, $6, $7)
+              RETURNING id, user_id, name, race, sex, age, descriptions, images_url;`
+
+	newCat = &model.Cat{}
+	err = c.DB.PG.QueryRowxContext(ctx, query, cat.UserID, cat.Name, cat.Race, cat.Sex, cat.Age, cat.Descriptions, pq.Array(cat.Images)).StructScan(newCat)
 	if err != nil {
 		logger.ErrorWithStack(err)
 		err = failure.InternalError(err)
-		return
+		return nil, err
 	}
 
-	return lastInsertID, nil
+	return newCat, nil
 }
 
 func (c *CatRepositoryInfra) Find(ctx context.Context, userID uuid.UUID, catID uuid.UUID) (cat model.Cat, err error) {

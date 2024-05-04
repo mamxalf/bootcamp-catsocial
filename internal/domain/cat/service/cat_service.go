@@ -12,7 +12,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func (u *CatServiceImpl) InsertNewCat(ctx context.Context, req request.InsertCatRequest) (message string, err error) {
+func (u *CatServiceImpl) InsertNewCat(ctx context.Context, req request.InsertCatRequest) (res response.CatResponse, err error) {
 	cat, err := req.ToModel()
 	if err != nil {
 		logger.ErrorWithStack(err)
@@ -20,14 +20,30 @@ func (u *CatServiceImpl) InsertNewCat(ctx context.Context, req request.InsertCat
 		return
 	}
 
-	_, err = u.CatRepository.Insert(ctx, cat)
+	result, err := u.CatRepository.Insert(ctx, cat)
 	if err != nil {
 		logger.ErrorWithStack(err)
 		err = failure.BadRequestFromString("can't insert new cat")
 		return
 	}
 
-	message = "successfully insert new cat"
+	var sex string
+	if result.Sex {
+		sex = "male"
+	} else {
+		sex = "female"
+	}
+	res = response.CatResponse{
+		ID:          result.ID,
+		Name:        result.Name,
+		Race:        result.Race,
+		Sex:         sex,
+		AgeInMonth:  result.Age,
+		Description: res.Description,
+		ImageUrls:   result.Images,
+		CreatedAt:   result.CreatedAt,
+		UpdatedAt:   result.UpdatedAt,
+	}
 	return
 }
 func (u *CatServiceImpl) GetCatData(ctx context.Context, userID uuid.UUID, catID string) (res response.CatResponse, err error) {
@@ -39,11 +55,17 @@ func (u *CatServiceImpl) GetCatData(ctx context.Context, userID uuid.UUID, catID
 	if err != nil {
 		return
 	}
+	var sex string
+	if cat.Sex {
+		sex = "male"
+	} else {
+		sex = "female"
+	}
 	res = response.CatResponse{
 		ID:          cat.ID,
 		Name:        cat.Name,
 		Race:        cat.Race,
-		Sex:         cat.Sex,
+		Sex:         sex,
 		AgeInMonth:  cat.Age,
 		Description: cat.Descriptions,
 		ImageUrls:   []string{"apple", "grape", "banana", "melon"},
@@ -58,11 +80,17 @@ func (u *CatServiceImpl) GetAllCatData(ctx context.Context, userId uuid.UUID, pa
 		return
 	}
 	for _, cat := range cats {
+		var sex string
+		if cat.Sex {
+			sex = "male"
+		} else {
+			sex = "female"
+		}
 		catList = append(catList, response.CatResponse{
 			ID:          cat.ID,
 			Name:        cat.Name,
 			Race:        cat.Race,
-			Sex:         cat.Sex,
+			Sex:         sex,
 			AgeInMonth:  cat.Age,
 			Description: cat.Descriptions,
 			ImageUrls:   cat.Images,

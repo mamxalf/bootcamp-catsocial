@@ -11,7 +11,7 @@ import (
 
 type CatRepository interface {
 	// Insert Cat CRUD Interface
-	Insert(ctx context.Context, cat model.InsertCat) (lastInsertID uuid.UUID, err error)
+	Insert(ctx context.Context, cat model.InsertCat) (newCat *model.Cat, err error)
 	Find(ctx context.Context, userID uuid.UUID, catID uuid.UUID) (cat model.Cat, err error)
 	FindAll(ctx context.Context, userId uuid.UUID, params request.CatQueryParams) (cats []model.Cat, err error)
 	Update(ctx context.Context, catID uuid.UUID, cat model.Cat) (updatedID uuid.UUID, err error)
