@@ -2,9 +2,10 @@ package service
 
 import (
 	"catsocial/configs"
-	"catsocial/internal/domain/cat/repository"
+	catRepository "catsocial/internal/domain/cat/repository"
 	"catsocial/internal/domain/cat/request"
 	"catsocial/internal/domain/cat/response"
+	userRepository "catsocial/internal/domain/user/repository"
 	"context"
 
 	"github.com/google/uuid"
@@ -26,17 +27,20 @@ type CatService interface {
 	DeleteCatMatch(ctx context.Context, matchID string) (message string, err error)
 }
 type CatServiceImpl struct {
-	CatRepository repository.CatRepository
-	Config        *configs.Config
+	CatRepository  catRepository.CatRepository
+	UserRepository userRepository.UserRepository
+	Config         *configs.Config
 }
 
 // ProvideCatServiceImpl is the provider for this service.
 func ProvideCatServiceImpl(
-	catRepository repository.CatRepository,
+	catRepository catRepository.CatRepository,
+	userRepository userRepository.UserRepository,
 	config *configs.Config,
 ) *CatServiceImpl {
 	s := new(CatServiceImpl)
 	s.CatRepository = catRepository
+	s.UserRepository = userRepository
 	s.Config = config
 	return s
 }

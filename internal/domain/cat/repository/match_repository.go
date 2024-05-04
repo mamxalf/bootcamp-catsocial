@@ -14,10 +14,12 @@ var matchQueries = struct {
 	insertMatch string
 	updateMatch string
 	deleteMatch string
+	getMatch    string
 }{
 	insertMatch: "INSERT INTO matches %s VALUES %s RETURNING id",
 	updateMatch: "UPDATE matches SET %s WHERE %s",
 	deleteMatch: "DELETE FROM matches WHERE %s",
+	getMatch:    "SELECT * FROM matches WHERE %s",
 }
 
 func (c *CatRepositoryInfra) MatchRequest(ctx context.Context, insertMatch *model.InsertMatch) (id uuid.UUID, err error) {
@@ -89,5 +91,29 @@ func (c *CatRepositoryInfra) DeleteMatch(ctx context.Context, matchID uuid.UUID)
 		return failure.InternalError(err)
 	}
 
+	return
+}
+
+func (c *CatRepositoryInfra) FindMatchByUserCatID(ctx context.Context, userCatID uuid.UUID) (cat model.Match, err error) {
+	whereClause := "user_cat_id = $1"
+	commandQuery := fmt.Sprintf(matchQueries.deleteMatch, whereClause)
+	err = c.DB.PG.SelectContext(ctx, &cat, commandQuery, userCatID)
+	if err != nil {
+		logger.ErrorWithStack(err)
+		err = failure.InternalError(err)
+		return
+	}
+	return
+}
+
+func (c *CatRepositoryInfra) FindMatchByMatchCatID(ctx context.Context, matchCatID uuid.UUID) (cat model.Match, err error) {
+	whereClause := "match_cat_id = $1"
+	commandQuery := fmt.Sprintf(matchQueries.deleteMatch, whereClause)
+	err = c.DB.PG.SelectContext(ctx, &cat, commandQuery, matchCatID)
+	if err != nil {
+		logger.ErrorWithStack(err)
+		err = failure.InternalError(err)
+		return
+	}
 	return
 }

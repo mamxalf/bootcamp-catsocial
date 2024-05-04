@@ -21,6 +21,8 @@ type CatRepository interface {
 	FindAllMatches(ctx context.Context) (matches []model.Match, err error)
 	IsApprove(ctx context.Context, matchID uuid.UUID, isApprove bool) (err error)
 	DeleteMatch(ctx context.Context, matchID uuid.UUID) (err error)
+	FindMatchByUserCatID(ctx context.Context, userCatID uuid.UUID) (cat model.Match, err error)
+	FindMatchByMatchCatID(ctx context.Context, matchCatID uuid.UUID) (cat model.Match, err error)
 }
 
 type CatRepositoryInfra struct {
