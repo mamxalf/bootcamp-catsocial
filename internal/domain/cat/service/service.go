@@ -2,6 +2,7 @@ package service
 
 import (
 	"catsocial/configs"
+	"catsocial/internal/domain/cat/model"
 	catRepository "catsocial/internal/domain/cat/repository"
 	"catsocial/internal/domain/cat/request"
 	"catsocial/internal/domain/cat/response"
@@ -21,7 +22,7 @@ type CatService interface {
 
 	// Match Service Interface
 	InsertNewMatch(ctx context.Context, userID uuid.UUID, req request.MatchRequest) (message string, err error)
-	GetAllMatchesData(ctx context.Context) (res []response.MatchList, err error)
+	GetAllMatchesData(ctx context.Context) (res []model.MatchDetails, err error)
 	ApproveCatMatch(ctx context.Context, matchID string) (message string, err error)
 	RejectCatMatch(ctx context.Context, matchID string) (message string, err error)
 	DeleteCatMatch(ctx context.Context, matchID string) (message string, err error)

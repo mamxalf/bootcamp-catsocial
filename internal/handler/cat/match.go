@@ -62,7 +62,7 @@ func (h *CatHandler) InsertNewMatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.WithJSON(w, http.StatusOK, res)
+	response.WithJSON(w, http.StatusCreated, res)
 }
 
 // FindAllMatchData All Match Data.

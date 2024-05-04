@@ -43,10 +43,10 @@ func (c *CatRepositoryInfra) Insert(ctx context.Context, cat model.InsertCat) (n
 	return newCat, nil
 }
 
-func (c *CatRepositoryInfra) Find(ctx context.Context, userID uuid.UUID, catID uuid.UUID) (cat model.Cat, err error) {
-	whereClauses := " WHERE id = $1 AND user_id = $2 LIMIT 1"
+func (c *CatRepositoryInfra) Find(ctx context.Context, catID uuid.UUID) (cat model.Cat, err error) {
+	whereClauses := " WHERE id = $1 LIMIT 1"
 	query := fmt.Sprintf(catQueries.selectCat, whereClauses)
-	err = c.DB.PG.GetContext(ctx, &cat, query, catID, userID)
+	err = c.DB.PG.GetContext(ctx, &cat, query, catID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			err = failure.NotFound("Cat not found!")

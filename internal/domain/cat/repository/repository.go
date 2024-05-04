@@ -12,14 +12,14 @@ import (
 type CatRepository interface {
 	// Insert Cat CRUD Interface
 	Insert(ctx context.Context, cat model.InsertCat) (newCat *model.Cat, err error)
-	Find(ctx context.Context, userID uuid.UUID, catID uuid.UUID) (cat model.Cat, err error)
+	Find(ctx context.Context, catID uuid.UUID) (cat model.Cat, err error)
 	FindAll(ctx context.Context, userId uuid.UUID, params request.CatQueryParams) (cats []model.Cat, err error)
 	Update(ctx context.Context, catID uuid.UUID, cat model.Cat) (updatedCat *model.Cat, err error)
 	Delete(ctx context.Context, catID uuid.UUID) (deletedID uuid.UUID, err error)
 
 	// Match Request Interface
-	MatchRequest(ctx context.Context, insertMatch *model.InsertMatch) (lastInsertId uuid.UUID, err error)
-	FindAllMatches(ctx context.Context) (matches []model.Match, err error)
+	MatchRequest(ctx context.Context, insertMatch *model.InsertMatch) (match *model.Match, err error)
+	FindAllMatches(ctx context.Context) (matches []model.MatchDetails, err error)
 	IsApprove(ctx context.Context, matchID uuid.UUID, isApprove bool) (err error)
 	DeleteMatch(ctx context.Context, matchID uuid.UUID) (err error)
 	FindMatchByUserCatID(ctx context.Context, userCatID uuid.UUID) (cat model.Match, err error)

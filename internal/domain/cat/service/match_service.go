@@ -1,12 +1,13 @@
 package service
 
 import (
+	"catsocial/internal/domain/cat/model"
 	"catsocial/internal/domain/cat/request"
-	"catsocial/internal/domain/cat/response"
 	"catsocial/shared/failure"
 	"catsocial/shared/logger"
 	"context"
 	"github.com/google/uuid"
+	"github.com/rs/zerolog/log"
 )
 
 func (u *CatServiceImpl) InsertNewMatch(ctx context.Context, userID uuid.UUID, req request.MatchRequest) (message string, err error) {
@@ -17,13 +18,13 @@ func (u *CatServiceImpl) InsertNewMatch(ctx context.Context, userID uuid.UUID, r
 		return
 	}
 
-	if insertModel.IssuedUserID != insertModel.UserCatID {
-		err = failure.BadRequestFromString("cat is not issued by user")
-		return
-	}
+	//if insertModel.IssuedUserID != insertModel.UserCatID {
+	//	err = failure.BadRequestFromString("cat is not issued by user")
+	//	return
+	//}
 
 	// Find Cat by User Cat ID
-	userCat, err := u.CatRepository.Find(ctx, userID, insertModel.UserCatID)
+	userCat, err := u.CatRepository.Find(ctx, insertModel.UserCatID)
 	// if neither matchCatId / userCatId is not found
 	if err != nil {
 		return
@@ -36,7 +37,7 @@ func (u *CatServiceImpl) InsertNewMatch(ctx context.Context, userID uuid.UUID, r
 	}
 
 	// Find Cat by Match Cat ID
-	matchCat, err := u.CatRepository.Find(ctx, userID, insertModel.MatchCatID)
+	matchCat, err := u.CatRepository.Find(ctx, insertModel.MatchCatID)
 	// if neither matchCatId / userCatId is not found
 	if err != nil {
 		return
@@ -54,23 +55,24 @@ func (u *CatServiceImpl) InsertNewMatch(ctx context.Context, userID uuid.UUID, r
 
 	// if both matchCatId & userCatId already matched
 	matchCatUser, err := u.CatRepository.FindMatchByMatchCatID(ctx, matchCat.UserID)
-	if err != nil {
-		return
-	}
+	//if err != nil {
+	//	return
+	//}
 	userCatUser, err := u.CatRepository.FindMatchByUserCatID(ctx, userCat.UserID)
-	if err != nil {
-		return
-	}
+	//if err != nil {
+	//	return
+	//}
 	if matchCatUser.IsApproved && userCatUser.IsApproved {
 		err = failure.BadRequestFromString("Both Cat Already Matched!")
 		return
 	}
 
 	// successfully send match request
+	insertModel.IssuedUserID = user.ID
 	_, err = u.CatRepository.MatchRequest(ctx, &insertModel)
 	if err != nil {
+		log.Error().Interface("req model", insertModel).Msg("[MatchRequest]")
 		message = "Failed to insert match request"
-		logger.ErrorWithStack(err)
 		return
 	}
 
@@ -78,9 +80,16 @@ func (u *CatServiceImpl) InsertNewMatch(ctx context.Context, userID uuid.UUID, r
 	return
 }
 
-func (u *CatServiceImpl) GetAllMatchesData(ctx context.Context) (res []response.MatchList, err error) {
-	//TODO implement me
-	panic("implement me")
+func (u *CatServiceImpl) GetAllMatchesData(ctx context.Context) (res []model.MatchDetails, err error) {
+	matches, err := u.CatRepository.FindAllMatches(ctx)
+	if err != nil {
+		return
+	}
+	if len(matches) == 0 {
+		return []model.MatchDetails{}, nil
+	}
+	res = matches
+	return
 }
 
 func (u *CatServiceImpl) ApproveCatMatch(ctx context.Context, matchIDStr string) (message string, err error) {
