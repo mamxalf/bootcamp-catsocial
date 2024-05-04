@@ -2,16 +2,16 @@ package repository
 
 import (
 	"catsocial/internal/domain/cat/model"
+	"catsocial/internal/domain/cat/request"
 	"catsocial/shared/failure"
 	"catsocial/shared/logger"
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"strings"
-
-	"github.com/google/uuid"
 )
 
 var catQueries = struct {
@@ -20,7 +20,7 @@ var catQueries = struct {
 	deleteCat string
 }{
 	Insertcat: "INSERT INTO cats %s VALUES %s RETURNING id",
-	getCat:    "SELECT * FROM cats %s",
+	getCat:    "SELECT * FROM cats WHERE 1=1",
 	deleteCat: "DELETE FROM cats WHERE id = $1",
 }
 
@@ -49,24 +49,6 @@ func (c *CatRepositoryInfra) Insert(ctx context.Context, cat model.InsertCat) (l
 	return lastInsertID, nil
 }
 
-func composeInsertFieldAndParamsCat(cats ...model.InsertCat) (fieldStr string, valueListStr []string, args []interface{}) {
-	fields := []string{"user_id", "name", "race", "sex", "age", "descriptions", "images_url"}
-	fieldStr = fmt.Sprintf("(%s)", strings.Join(fields, ","))
-
-	args = make([]interface{}, 0, len(cats)*len(fields))
-
-	for _, cat := range cats {
-		values := make([]string, len(fields))
-		args = append(args, cat.UserID, cat.Name, cat.Race, cat.Sex, cat.Age, cat.Descriptions, cat.Images)
-		for j := range fields {
-			values[j] = fmt.Sprintf("$%d", len(args)-len(fields)+j+1)
-		}
-		valueListStr = append(valueListStr, fmt.Sprintf("(%s)", strings.Join(values, ",")))
-	}
-
-	return fieldStr, valueListStr, args
-}
-
 func (c *CatRepositoryInfra) Find(ctx context.Context, catID uuid.UUID) (cat model.Cat, err error) {
 	whereClauses := " WHERE id = $1 LIMIT 1"
 	query := fmt.Sprintf(catQueries.getCat, whereClauses)
@@ -83,18 +65,56 @@ func (c *CatRepositoryInfra) Find(ctx context.Context, catID uuid.UUID) (cat mod
 	return
 }
 
-func (c *CatRepositoryInfra) FindAll(ctx context.Context) (cats []model.Cat, err error) {
-	whereClauses := " LIMIT 10"
-	query := fmt.Sprintf(catQueries.getCat, whereClauses)
-	err = c.DB.PG.SelectContext(ctx, &cats, query)
+func (c *CatRepositoryInfra) FindAll(ctx context.Context, userId uuid.UUID, params request.CatQueryParams) (cats []model.Cat, err error) {
+	//whereClauses := " LIMIT 10"
+	//query := fmt.Sprintf(catQueries.getCat, whereClauses)
+	//err = c.DB.PG.SelectContext(ctx, &cats, query)
+	//if err != nil {
+	//	if errors.Is(err, sql.ErrNoRows) {
+	//		err = failure.NotFound("Cat not found!")
+	//		return
+	//	}
+	//	logger.ErrorWithStack(err)
+	//	err = failure.InternalError(err)
+	//	return
+	//}
+	//return
+	baseQuery := catQueries.getCat
+	var args []interface{}
+	var conditions []string
+
+	conditions = append(conditions, "user_id = $1")
+	args = append(args, userId)
+
+	if params.ID != "" {
+		conditions = append(conditions, "id = $2")
+		args = append(args, params.ID)
+	}
+	if params.Race != "" {
+		conditions = append(conditions, "race = $3")
+		args = append(args, params.Race)
+	}
+	if params.Sex != "" {
+		conditions = append(conditions, "sex = $4")
+		args = append(args, params.Sex == "male")
+	}
+	if params.Search != "" {
+		conditions = append(conditions, "name ILIKE $5")
+		args = append(args, "%"+params.Search+"%")
+	}
+
+	if len(conditions) > 0 {
+		baseQuery += " AND " + strings.Join(conditions, " AND ")
+	}
+
+	// Adding pagination
+	baseQuery += fmt.Sprintf(" LIMIT $%d OFFSET $%d", len(args)+1, len(args)+2)
+	args = append(args, params.Limit, params.Offset)
+
+	// Executing the query
+	err = c.DB.PG.SelectContext(ctx, &cats, baseQuery, args...)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			err = failure.NotFound("Cat not found!")
-			return
-		}
-		logger.ErrorWithStack(err)
-		err = failure.InternalError(err)
-		return
+		return nil, err
 	}
 	return
 }

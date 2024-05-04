@@ -65,3 +65,20 @@ func (r *UpdateCatRequest) ToModel() (cat model.InsertCat, err error) {
 	}
 	return
 }
+
+type CatQueryParams struct {
+	ID         string `json:"id" validate:"omitempty,uuid"`
+	Limit      int    `json:"limit" validate:"omitempty,min=1"`
+	Offset     int    `json:"offset" validate:"omitempty,min=0"`
+	Race       string `json:"race" validate:"omitempty,oneof='Persian' 'Maine Coon' 'Siamese' 'Ragdoll' 'Bengal' 'Sphynx' 'British Shorthair' 'Abyssinian' 'Scottish Fold' 'Birman'"`
+	Sex        string `json:"sex" validate:"omitempty,oneof='male' 'female'"`
+	HasMatched bool   `json:"hasMatched" validate:"omitempty"`
+	AgeInMonth string `json:"ageInMonth" validate:"omitempty,ageInMonthValidator"`
+	Owned      bool   `json:"owned" validate:"omitempty"`
+	Search     string `json:"search" validate:"omitempty,min=1"`
+}
+
+func (r *CatQueryParams) Validate() (err error) {
+	validate := validator.GetValidator()
+	return validate.Struct(r)
+}

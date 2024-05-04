@@ -50,20 +50,21 @@ func (u *CatServiceImpl) GetCatData(ctx context.Context, catID string) (res resp
 	return
 }
 
-func (u *CatServiceImpl) GetAllCatData(ctx context.Context) (res []response.CatResponse, err error) {
+func (u *CatServiceImpl) GetAllCatData(ctx context.Context, userId uuid.UUID, params request.CatQueryParams) (res []response.CatResponse, err error) {
 	var catList []response.CatResponse
-	cats, err := u.CatRepository.FindAll(ctx)
+	cats, err := u.CatRepository.FindAll(ctx, userId, params)
 	if err != nil {
 		return
 	}
 	for _, cat := range cats {
 		catList = append(catList, response.CatResponse{
+			ID:          cat.ID,
 			Name:        cat.Name,
 			Race:        cat.Race,
 			Sex:         cat.Sex,
 			AgeInMonth:  cat.Age,
 			Description: cat.Descriptions,
-			ImageUrls:   []string{"apple", "grape", "banana", "melon"},
+			ImageUrls:   cat.Images,
 		})
 
 	}
