@@ -90,7 +90,7 @@ func (u *CatServiceImpl) ApproveCatMatch(ctx context.Context, matchIDStr string)
 		logger.ErrorWithStack(err)
 		return
 	}
-	if err := u.CatRepository.IsApprove(ctx, matchID, true); err != nil {
+	if err = u.CatRepository.IsApprove(ctx, matchID, true); err != nil {
 		message = "Failed to approve match"
 		logger.ErrorWithStack(err)
 		return
@@ -106,7 +106,7 @@ func (u *CatServiceImpl) RejectCatMatch(ctx context.Context, matchIDStr string) 
 		logger.ErrorWithStack(err)
 		return
 	}
-	if err := u.CatRepository.IsApprove(ctx, matchID, false); err != nil {
+	if err = u.CatRepository.IsApprove(ctx, matchID, false); err != nil {
 		message = "Failed to reject match"
 		logger.ErrorWithStack(err)
 		return
@@ -122,7 +122,7 @@ func (u *CatServiceImpl) DeleteCatMatch(ctx context.Context, matchIDStr string) 
 		logger.ErrorWithStack(err)
 		return
 	}
-	if err := u.CatRepository.DeleteMatch(ctx, matchID); err != nil {
+	if err = u.CatRepository.DeleteMatch(ctx, matchID); err != nil {
 		message = "Failed to delete match"
 		logger.ErrorWithStack(err)
 		return

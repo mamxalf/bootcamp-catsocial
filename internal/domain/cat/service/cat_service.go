@@ -90,7 +90,11 @@ func (u *CatServiceImpl) UpdateCatData(ctx context.Context, catID uuid.UUID, req
 	return
 }
 
-func (u *CatServiceImpl) DeleteCatData(ctx context.Context, catID uuid.UUID) (res response.CatResponse, err error) {
+func (u *CatServiceImpl) DeleteCatData(ctx context.Context, catIDStr string) (res response.CatResponse, err error) {
+	catID, err := uuid.Parse(catIDStr)
+	if err != nil {
+		return
+	}
 	_, err = u.CatRepository.Delete(ctx, catID)
 	if err != nil {
 		log.Error().Err(err).Msg("[DeleteCatData - Service] Internal Error")
