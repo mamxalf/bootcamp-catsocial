@@ -14,12 +14,13 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// Insert a new match.
+// InsertNewMatch a new match.
 // @Summary Insert a new match
 // @Description This endpoint is used to insert a new match.
 // @Tags Match
 // @Accept json
 // @Produce json
+// @Security BearerToken
 // @Param request body request.MatchRequest true "Request Body"
 // @Success 201 {object} response.Base
 // @Failure 400 {object} response.Base
@@ -52,6 +53,8 @@ func (h *CatHandler) InsertNewMatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	matchRequest.IssuedUserID = userID
+
 	res, err := h.CatService.InsertNewMatch(r.Context(), userID, matchRequest)
 	if err != nil {
 		log.Warn().Err(err).Msg("[Add New Cat]")
@@ -62,12 +65,13 @@ func (h *CatHandler) InsertNewMatch(w http.ResponseWriter, r *http.Request) {
 	response.WithJSON(w, http.StatusOK, res)
 }
 
-// Get All Match Data.
+// FindAllMatchData All Match Data.
 // @Summary GetAllMatch.
 // @Description This endpoint for get all Match data.
 // @Tags Match
 // @Accept  json
 // @Produce json
+// @Security BearerToken
 // @Success 200 {object} response.Base
 // @Failure 503 {object} response.Base
 // @Router /v1/cat/match [get]
@@ -80,12 +84,13 @@ func (h *CatHandler) FindAllMatchData(w http.ResponseWriter, r *http.Request) {
 	response.WithJSON(w, http.StatusOK, res)
 }
 
-// Approve Cat Match.
+// ApproveCatMatch Cat Match.
 // @Summary Approve Cat Match
 // @Description This endpoint is used to Approve Cat Match.
 // @Tags Match
 // @Accept json
 // @Produce json
+// @Security BearerToken
 // @Param request body request.MatchApproval true "Request Body"
 // @Success 201 {object} response.Base
 // @Failure 400 {object} response.Base
@@ -101,12 +106,13 @@ func (h *CatHandler) ApproveCatMatch(w http.ResponseWriter, r *http.Request) {
 	response.WithJSON(w, http.StatusOK, res)
 }
 
-// Reject Cat Match.
+// RejectCatMatch Cat Match.
 // @Summary Reject Cat Match
 // @Description This endpoint is used to Reject Cat Match.
 // @Tags Match
 // @Accept json
 // @Produce json
+// @Security BearerToken
 // @Param request body request.MatchRequest true "Request Body"
 // @Success 201 {object} response.Base
 // @Failure 400 {object} response.Base
@@ -117,12 +123,13 @@ func (h *CatHandler) RejectCatMatch(w http.ResponseWriter, r *http.Request) {
 	response.WithJSON(w, http.StatusOK, res)
 }
 
-// Delete match data.
+// DeleteCatMatch match data.
 // @Summary Delete match data
 // @Description This endpoint is used to delete match.
 // @Tags Match
 // @Accept json
 // @Produce json
+// @Security BearerToken
 // @Param id path string true "ID by match"
 // @Success 200 {object} response.Base
 // @Failure 401 {object} response.Base

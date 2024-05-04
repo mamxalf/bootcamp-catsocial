@@ -8,10 +8,10 @@ import (
 )
 
 type MatchRequest struct {
-	IssuedUserID string `validate:"required" json:"issuedUserID"`
-	MatchCatID   string `validate:"required" json:"matchCatId"`
-	UserCatID    string `validate:"required" json:"userCatId"`
-	Message      string `validate:"required" json:"message"`
+	IssuedUserID uuid.UUID `json:"-"`
+	MatchCatID   string    `validate:"required" json:"matchCatId"`
+	UserCatID    string    `validate:"required" json:"userCatId"`
+	Message      string    `validate:"required" json:"message"`
 }
 
 func (r *MatchRequest) Validate() (err error) {
@@ -20,11 +20,6 @@ func (r *MatchRequest) Validate() (err error) {
 }
 
 func (r *MatchRequest) ToModel() (insert model.InsertMatch, err error) {
-	issuedUserID, err := uuid.Parse(r.IssuedUserID)
-	if err != nil {
-		logger.ErrorWithStack(err)
-		return
-	}
 	matchCatID, err := uuid.Parse(r.MatchCatID)
 	if err != nil {
 		logger.ErrorWithStack(err)
@@ -36,10 +31,9 @@ func (r *MatchRequest) ToModel() (insert model.InsertMatch, err error) {
 		return
 	}
 	insert = model.InsertMatch{
-		IssuedUserID: issuedUserID,
-		MatchCatID:   matchCatID,
-		UserCatID:    userCatID,
-		Message:      r.Message,
+		MatchCatID: matchCatID,
+		UserCatID:  userCatID,
+		Message:    r.Message,
 	}
 	return
 }
