@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/go-chi/chi"
 	"github.com/rs/zerolog/log"
 )
 
@@ -52,9 +53,15 @@ func (h *CatHandler) InsertNewCat(w http.ResponseWriter, r *http.Request) {
 // @Param id path string true "ID by cat"
 // @Success 200 {object} response.Base
 // @Failure 503 {object} response.Base
-// @Router /v1/cat/:id [get]
+// @Router /v1/cat/{id} [get]
 func (h *CatHandler) Find(w http.ResponseWriter, r *http.Request) {
-	res := "success"
+	idStr := chi.URLParam(r, "id")
+	log.Info().Msg(idStr)
+	res, err := h.CatService.GetCatData(r.Context(), idStr)
+	if err != nil {
+		response.WithError(w, err)
+		return
+	}
 	response.WithJSON(w, http.StatusOK, res)
 }
 
@@ -68,7 +75,11 @@ func (h *CatHandler) Find(w http.ResponseWriter, r *http.Request) {
 // @Failure 503 {object} response.Base
 // @Router /v1/cat/ [get]
 func (h *CatHandler) FindAllCatData(w http.ResponseWriter, r *http.Request) {
-	res := "success"
+	res, err := h.CatService.GetAllCatData(r.Context())
+	if err != nil {
+		response.WithError(w, err)
+		return
+	}
 	response.WithJSON(w, http.StatusOK, res)
 }
 
@@ -83,7 +94,7 @@ func (h *CatHandler) FindAllCatData(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {object} response.Base
 // @Failure 401 {object} response.Base
 // @Failure 404 {object} response.Base
-// @Router /v1/cat/:id [put]
+// @Router /v1/cat/{id} [put]
 func (h *CatHandler) UpdateCatData(w http.ResponseWriter, r *http.Request) {
 	res := "success"
 	response.WithJSON(w, http.StatusOK, res)
@@ -99,8 +110,13 @@ func (h *CatHandler) UpdateCatData(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} response.Base
 // @Failure 401 {object} response.Base
 // @Failure 404 {object} response.Base
-// @Router /v1/cat/:id [delete]
+// @Router /v1/cat/{id} [delete]
 func (h *CatHandler) DeleteCatData(w http.ResponseWriter, r *http.Request) {
-	res := "success"
+	idStr := chi.URLParam(r, "id")
+	res, err := h.CatService.DeleteCatData(r.Context(), idStr)
+	if err != nil {
+		response.WithError(w, err)
+		return
+	}
 	response.WithJSON(w, http.StatusOK, res)
 }

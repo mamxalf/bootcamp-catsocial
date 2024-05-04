@@ -14,7 +14,7 @@ type Cat struct {
 	Sex          bool      `db:"sex"`
 	Age          int       `db:"age"`
 	Descriptions string    `db:"descriptions"`
-	Images       []string  `db:"images_url"`
+	Images       []uint8   `db:"images_url"`
 	CreatedAt    time.Time `db:"created_at"`
 	UpdatedAt    time.Time `db:"updated_at"`
 }
