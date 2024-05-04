@@ -154,7 +154,7 @@ func parseAgeFilter(input string) (operator string, value int, err error) {
 	return operator, value, nil
 }
 
-func (c *CatRepositoryInfra) Update(ctx context.Context, catID uuid.UUID, cat model.Cat) (updatedID uuid.UUID, err error) {
+func (c *CatRepositoryInfra) Update(ctx context.Context, catID uuid.UUID, cat model.Cat) (updatedCat *model.Cat, err error) {
 	var setParts []string
 	var args []interface{}
 	argID := 1
@@ -196,15 +196,16 @@ func (c *CatRepositoryInfra) Update(ctx context.Context, catID uuid.UUID, cat mo
 	}
 
 	// Construct the full SQL statement
-	updateQuery := "UPDATE cats SET " + strings.Join(setParts, ", ") + " WHERE id = $" + strconv.Itoa(argID)
+	updateQuery := "UPDATE cats SET " + strings.Join(setParts, ", ") + " WHERE id = $" + strconv.Itoa(argID) + " RETURNING *"
 	args = append(args, catID)
 
 	// Execute the query
-	_, err = c.DB.PG.ExecContext(ctx, updateQuery, args...)
+	updatedCat = &model.Cat{}
+	err = c.DB.PG.GetContext(ctx, updatedCat, updateQuery, args...)
 	if err != nil {
 		logger.ErrorWithStack(err)
 		err = failure.InternalError(err)
-		return
+		return nil, err
 	}
 	return
 }

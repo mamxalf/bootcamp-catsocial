@@ -79,6 +79,9 @@ func (u *CatServiceImpl) GetAllCatData(ctx context.Context, userId uuid.UUID, pa
 	if err != nil {
 		return
 	}
+	if len(catList) == 0 {
+		return []response.CatResponse{}, nil
+	}
 	for _, cat := range cats {
 		var sex string
 		if cat.Sex {
@@ -103,16 +106,32 @@ func (u *CatServiceImpl) GetAllCatData(ctx context.Context, userId uuid.UUID, pa
 }
 
 func (u *CatServiceImpl) UpdateCatData(ctx context.Context, catID uuid.UUID, req request.UpdateCatRequest) (res response.CatResponse, err error) {
-	cat, err := req.ToModel()
+	catModel, err := req.ToModel()
 	if err != nil {
 		logger.ErrorWithStack(err)
 		err = failure.BadRequestFromString("doesn't pass validation")
 		return
 	}
-	_, err = u.CatRepository.Update(ctx, catID, cat)
+	cat, err := u.CatRepository.Update(ctx, catID, catModel)
 	if err != nil {
 		logger.ErrorWithStack(err)
 		return
+	}
+	var sex string
+	if cat.Sex {
+		sex = "male"
+	} else {
+		sex = "female"
+	}
+	res = response.CatResponse{
+		ID:          cat.ID,
+		Name:        cat.Name,
+		Race:        cat.Race,
+		Sex:         sex,
+		AgeInMonth:  cat.Age,
+		Description: cat.Descriptions,
+		ImageUrls:   cat.Images,
+		HasMatched:  cat.HasMatched,
 	}
 	return
 }
