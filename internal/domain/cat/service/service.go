@@ -14,13 +14,13 @@ import (
 type CatService interface {
 	// Cat Service Interface
 	InsertNewCat(ctx context.Context, req request.InsertCatRequest) (message string, err error)
-	GetCatData(ctx context.Context, catID string) (res response.CatResponse, err error)
+	GetCatData(ctx context.Context, userID uuid.UUID, catID string) (res response.CatResponse, err error)
 	GetAllCatData(ctx context.Context, userId uuid.UUID, params request.CatQueryParams) (res []response.CatResponse, err error)
 	UpdateCatData(ctx context.Context, catID uuid.UUID, req request.UpdateCatRequest) (res response.CatResponse, err error)
 	DeleteCatData(ctx context.Context, catID string) (res response.CatResponse, err error)
 
 	// Match Service Interface
-	InsertNewMatch(ctx context.Context, req request.MatchRequest) (message string, err error)
+	InsertNewMatch(ctx context.Context, userID uuid.UUID, req request.MatchRequest) (message string, err error)
 	GetAllMatchesData(ctx context.Context) (res []response.MatchList, err error)
 	ApproveCatMatch(ctx context.Context, matchID string) (message string, err error)
 	RejectCatMatch(ctx context.Context, matchID string) (message string, err error)

@@ -30,16 +30,17 @@ func (u *CatServiceImpl) InsertNewCat(ctx context.Context, req request.InsertCat
 	message = "successfully insert new cat"
 	return
 }
-func (u *CatServiceImpl) GetCatData(ctx context.Context, catID string) (res response.CatResponse, err error) {
+func (u *CatServiceImpl) GetCatData(ctx context.Context, userID uuid.UUID, catID string) (res response.CatResponse, err error) {
 	id, err := uuid.Parse(catID)
 	if err != nil {
 		return
 	}
-	cat, err := u.CatRepository.Find(ctx, id)
+	cat, err := u.CatRepository.Find(ctx, userID, id)
 	if err != nil {
 		return
 	}
 	res = response.CatResponse{
+		ID:          cat.ID,
 		Name:        cat.Name,
 		Race:        cat.Race,
 		Sex:         cat.Sex,

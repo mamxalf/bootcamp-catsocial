@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (u *CatServiceImpl) InsertNewMatch(ctx context.Context, req request.MatchRequest) (message string, err error) {
+func (u *CatServiceImpl) InsertNewMatch(ctx context.Context, userID uuid.UUID, req request.MatchRequest) (message string, err error) {
 	insertModel, err := req.ToModel()
 	if err != nil {
 		message = "Failed Parse request to model"
@@ -23,7 +23,7 @@ func (u *CatServiceImpl) InsertNewMatch(ctx context.Context, req request.MatchRe
 	}
 
 	// Find Cat by User Cat ID
-	userCat, err := u.CatRepository.Find(ctx, insertModel.UserCatID)
+	userCat, err := u.CatRepository.Find(ctx, userID, insertModel.UserCatID)
 	// if neither matchCatId / userCatId is not found
 	if err != nil {
 		return
@@ -36,7 +36,7 @@ func (u *CatServiceImpl) InsertNewMatch(ctx context.Context, req request.MatchRe
 	}
 
 	// Find Cat by Match Cat ID
-	matchCat, err := u.CatRepository.Find(ctx, insertModel.MatchCatID)
+	matchCat, err := u.CatRepository.Find(ctx, userID, insertModel.MatchCatID)
 	// if neither matchCatId / userCatId is not found
 	if err != nil {
 		return
