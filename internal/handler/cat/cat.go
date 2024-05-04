@@ -25,7 +25,7 @@ import (
 // @Success 201 {object} response.Base
 // @Failure 400 {object} response.Base
 // @Failure 500 {object} response.Base
-// @Router /v1/cat/add [post]
+// @Router /v1/cat [post]
 func (h *CatHandler) InsertNewCat(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var catRequest request.InsertCatRequest
