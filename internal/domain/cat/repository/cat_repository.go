@@ -59,6 +59,22 @@ func (c *CatRepositoryInfra) Find(ctx context.Context, catID uuid.UUID) (cat mod
 	return
 }
 
+func (c *CatRepositoryInfra) Approve(ctx context.Context, catID uuid.UUID) (err error) {
+	whereClauses := "UPDATE cats SET has_matched = true WHERE id = $1"
+	query := fmt.Sprintf(catQueries.selectCat, whereClauses)
+	_, err = c.DB.PG.ExecContext(ctx, query, catID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			err = failure.NotFound("Cat not found!")
+			return
+		}
+		logger.ErrorWithStack(err)
+		err = failure.InternalError(err)
+		return
+	}
+	return
+}
+
 func (c *CatRepositoryInfra) FindAll(ctx context.Context, userId uuid.UUID, params request.CatQueryParams) (cats []model.Cat, err error) {
 	baseQuery := catQueries.getCat // Assuming this starts with "SELECT ... FROM cats WHERE 1=1"
 	var args []interface{}

@@ -172,6 +172,11 @@ func (c *CatRepositoryInfra) DeleteAllMatchCat(ctx context.Context, userID uuid.
 	if err != nil {
 		return
 	}
+	err = c.Approve(ctx, match.MatchCatID)
+	if err != nil {
+		return err
+	}
+
 	whereClause := "match_cat_id = $1 AND issued_user_id = $2"
 	commandQuery := fmt.Sprintf(matchQueries.deleteMatch, whereClause)
 
