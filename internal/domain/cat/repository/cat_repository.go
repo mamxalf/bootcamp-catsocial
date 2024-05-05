@@ -159,6 +159,17 @@ func (c *CatRepositoryInfra) Update(ctx context.Context, catID uuid.UUID, cat mo
 	var args []interface{}
 	argID := 1
 
+	find, err := c.Find(ctx, catID)
+	if err != nil {
+		return nil, err
+	}
+
+	if !find.HasMatched {
+		setParts = append(setParts, "sex = $"+strconv.Itoa(argID))
+		args = append(args, cat.Sex)
+		argID++
+	}
+
 	// Dynamically build the SQL query based on provided fields
 	if cat.Name != "" {
 		setParts = append(setParts, "name = $"+strconv.Itoa(argID))
@@ -168,11 +179,6 @@ func (c *CatRepositoryInfra) Update(ctx context.Context, catID uuid.UUID, cat mo
 	if cat.Race != "" {
 		setParts = append(setParts, "race = $"+strconv.Itoa(argID))
 		args = append(args, cat.Race)
-		argID++
-	}
-	if cat.Sex { // Assuming `false` is not a valid update, adjust as needed
-		setParts = append(setParts, "sex = $"+strconv.Itoa(argID))
-		args = append(args, cat.Sex)
 		argID++
 	}
 	if cat.Age != 0 {
