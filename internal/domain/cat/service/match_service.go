@@ -85,18 +85,12 @@ func (u *CatServiceImpl) GetAllMatchesData(ctx context.Context) (res []model.Mat
 }
 
 func (u *CatServiceImpl) ApproveCatMatch(ctx context.Context, userID uuid.UUID, matchIDStr string) (message string, err error) {
-	matchID, err := uuid.Parse(matchIDStr)
-	if err != nil {
-		message = "Failed to parse match id"
-		logger.ErrorWithStack(err)
-		return
-	}
-	if err = u.CatRepository.IsApprove(ctx, matchID, true); err != nil {
+	if err = u.CatRepository.IsApprove(ctx, matchIDStr, true); err != nil {
 		message = "Failed to approve match"
 		logger.ErrorWithStack(err)
 		return
 	}
-	if err = u.CatRepository.DeleteAllMatchCat(ctx, userID, matchID); err != nil {
+	if err = u.CatRepository.DeleteAllMatchCat(ctx, userID, matchIDStr); err != nil {
 		message = "Failed to approve match"
 		logger.ErrorWithStack(err)
 		return
@@ -106,13 +100,7 @@ func (u *CatServiceImpl) ApproveCatMatch(ctx context.Context, userID uuid.UUID, 
 }
 
 func (u *CatServiceImpl) RejectCatMatch(ctx context.Context, matchIDStr string) (message string, err error) {
-	matchID, err := uuid.Parse(matchIDStr)
-	if err != nil {
-		message = "Failed to parse match id"
-		logger.ErrorWithStack(err)
-		return
-	}
-	if err = u.CatRepository.IsApprove(ctx, matchID, false); err != nil {
+	if err = u.CatRepository.IsApprove(ctx, matchIDStr, false); err != nil {
 		message = "Failed to reject match"
 		logger.ErrorWithStack(err)
 		return
@@ -122,13 +110,7 @@ func (u *CatServiceImpl) RejectCatMatch(ctx context.Context, matchIDStr string) 
 }
 
 func (u *CatServiceImpl) DeleteCatMatch(ctx context.Context, userID uuid.UUID, matchIDStr string) (message string, err error) {
-	matchID, err := uuid.Parse(matchIDStr)
-	if err != nil {
-		message = "Failed to parse match id"
-		logger.ErrorWithStack(err)
-		return
-	}
-	matchCat, err := u.CatRepository.FindMatchByID(ctx, matchID)
+	matchCat, err := u.CatRepository.FindMatchByID(ctx, matchIDStr)
 	if err != nil {
 		return
 	}
@@ -136,7 +118,7 @@ func (u *CatServiceImpl) DeleteCatMatch(ctx context.Context, userID uuid.UUID, m
 		err = failure.BadRequestFromString("Match is Approved!")
 		return
 	}
-	if err = u.CatRepository.DeleteMatch(ctx, userID, matchID); err != nil {
+	if err = u.CatRepository.DeleteMatch(ctx, userID, matchIDStr); err != nil {
 		message = "Failed to delete match"
 		logger.ErrorWithStack(err)
 		return

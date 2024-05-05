@@ -60,8 +60,7 @@ func (c *CatRepositoryInfra) Find(ctx context.Context, catID uuid.UUID) (cat mod
 }
 
 func (c *CatRepositoryInfra) Approve(ctx context.Context, catID uuid.UUID) (err error) {
-	whereClauses := "UPDATE cats SET has_matched = true WHERE id = $1"
-	query := fmt.Sprintf(catQueries.selectCat, whereClauses)
+	query := "UPDATE cats SET has_matched = true WHERE id = $1"
 	_, err = c.DB.PG.ExecContext(ctx, query, catID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

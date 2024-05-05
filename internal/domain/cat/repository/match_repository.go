@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
+	"strconv"
 	"time"
 )
 
@@ -140,12 +141,16 @@ func (c *CatRepositoryInfra) FindAllMatches(ctx context.Context) (matches []mode
 	return matches, nil
 }
 
-func (c *CatRepositoryInfra) IsApprove(ctx context.Context, matchID uuid.UUID, isApprove bool) (err error) {
+func (c *CatRepositoryInfra) IsApprove(ctx context.Context, matchID string, isApprove bool) (err error) {
 	updateClause := "is_approved = $1"
 	whereClause := "id = $2"
 	commandQuery := fmt.Sprintf(matchQueries.updateMatch, updateClause, whereClause)
-
-	_, err = c.DB.PG.ExecContext(ctx, commandQuery, isApprove, matchID)
+	id, err := strconv.Atoi(matchID)
+	if err != nil {
+		logger.ErrorWithStack(err)
+		return
+	}
+	_, err = c.DB.PG.ExecContext(ctx, commandQuery, isApprove, id)
 	if err != nil {
 		logger.ErrorWithStack(err)
 		return failure.InternalError(err)
@@ -154,7 +159,7 @@ func (c *CatRepositoryInfra) IsApprove(ctx context.Context, matchID uuid.UUID, i
 	return
 }
 
-func (c *CatRepositoryInfra) DeleteMatch(ctx context.Context, userID uuid.UUID, matchID uuid.UUID) (err error) {
+func (c *CatRepositoryInfra) DeleteMatch(ctx context.Context, userID uuid.UUID, matchID string) (err error) {
 	whereClause := "id = $1 AND issued_user_id = $2"
 	commandQuery := fmt.Sprintf(matchQueries.deleteMatch, whereClause)
 
@@ -167,7 +172,7 @@ func (c *CatRepositoryInfra) DeleteMatch(ctx context.Context, userID uuid.UUID, 
 	return
 }
 
-func (c *CatRepositoryInfra) DeleteAllMatchCat(ctx context.Context, userID uuid.UUID, matchID uuid.UUID) (err error) {
+func (c *CatRepositoryInfra) DeleteAllMatchCat(ctx context.Context, userID uuid.UUID, matchID string) (err error) {
 	match, err := c.FindMatchByID(ctx, matchID)
 	if err != nil {
 		return
@@ -221,7 +226,7 @@ func (c *CatRepositoryInfra) FindMatchByMatchCatID(ctx context.Context, matchCat
 	return
 }
 
-func (c *CatRepositoryInfra) FindMatchByID(ctx context.Context, ID uuid.UUID) (cat model.Match, err error) {
+func (c *CatRepositoryInfra) FindMatchByID(ctx context.Context, ID string) (cat model.Match, err error) {
 	whereClause := "ID = $1 LIMIT 1"
 	commandQuery := fmt.Sprintf(matchQueries.getMatch, whereClause)
 	err = c.DB.PG.GetContext(ctx, &cat, commandQuery, ID)

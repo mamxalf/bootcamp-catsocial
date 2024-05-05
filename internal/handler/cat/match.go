@@ -97,7 +97,19 @@ func (h *CatHandler) FindAllMatchData(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} response.Base
 // @Router /v1/cat/match/approve [post]
 func (h *CatHandler) ApproveCatMatch(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
+
+	decoder := json.NewDecoder(r.Body)
+	var matchRequest request.MatchApproval
+	if err := decoder.Decode(&matchRequest); err != nil {
+		response.WithError(w, failure.BadRequest(err))
+		return
+	}
+
+	if err := matchRequest.Validate(); err != nil {
+		response.WithError(w, failure.BadRequest(err))
+		return
+	}
+
 	claimUser, ok := middleware.GetClaimsUser(r.Context()).(jwt.MapClaims)
 	if !ok {
 		log.Warn().Msg("invalid claim jwt")
@@ -112,7 +124,7 @@ func (h *CatHandler) ApproveCatMatch(w http.ResponseWriter, r *http.Request) {
 		response.WithError(w, err)
 		return
 	}
-	res, err := h.CatService.ApproveCatMatch(r.Context(), userID, idStr)
+	res, err := h.CatService.ApproveCatMatch(r.Context(), userID, matchRequest.MatchId)
 	if err != nil {
 		response.WithError(w, err)
 		return
@@ -133,7 +145,36 @@ func (h *CatHandler) ApproveCatMatch(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} response.Base
 // @Router /v1/cat/match/reject [post]
 func (h *CatHandler) RejectCatMatch(w http.ResponseWriter, r *http.Request) {
-	res := "success"
+	decoder := json.NewDecoder(r.Body)
+	var matchRequest request.MatchApproval
+	if err := decoder.Decode(&matchRequest); err != nil {
+		response.WithError(w, failure.BadRequest(err))
+		return
+	}
+
+	if err := matchRequest.Validate(); err != nil {
+		response.WithError(w, failure.BadRequest(err))
+		return
+	}
+	claimUser, ok := middleware.GetClaimsUser(r.Context()).(jwt.MapClaims)
+	if !ok {
+		log.Warn().Msg("invalid claim jwt")
+		err := failure.Unauthorized("invalid claim jwt")
+		response.WithError(w, err)
+		return
+	}
+	userID, err := uuid.Parse(claimUser["ownerID"].(string))
+	if err != nil {
+		log.Warn().Msg(err.Error())
+		err = failure.Unauthorized("invalid format user_id")
+		response.WithError(w, err)
+		return
+	}
+	res, err := h.CatService.ApproveCatMatch(r.Context(), userID, matchRequest.MatchId)
+	if err != nil {
+		response.WithError(w, err)
+		return
+	}
 	response.WithJSON(w, http.StatusOK, res)
 }
 

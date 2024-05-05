@@ -21,12 +21,12 @@ type CatRepository interface {
 	// Match Request Interface
 	MatchRequest(ctx context.Context, insertMatch *model.InsertMatch) (match *model.Match, err error)
 	FindAllMatches(ctx context.Context) (matches []model.MatchDetails, err error)
-	IsApprove(ctx context.Context, matchID uuid.UUID, isApprove bool) (err error)
-	DeleteMatch(ctx context.Context, userID uuid.UUID, matchID uuid.UUID) (err error)
+	IsApprove(ctx context.Context, matchID string, isApprove bool) (err error)
+	DeleteMatch(ctx context.Context, userID uuid.UUID, matchID string) (err error)
 	FindMatchByUserCatID(ctx context.Context, userCatID uuid.UUID) (cat model.Match, err error)
 	FindMatchByMatchCatID(ctx context.Context, matchCatID uuid.UUID) (cat model.Match, err error)
-	FindMatchByID(ctx context.Context, ID uuid.UUID) (cat model.Match, err error)
-	DeleteAllMatchCat(ctx context.Context, userID uuid.UUID, matchID uuid.UUID) (err error)
+	FindMatchByID(ctx context.Context, ID string) (cat model.Match, err error)
+	DeleteAllMatchCat(ctx context.Context, userID uuid.UUID, matchID string) (err error)
 }
 
 type CatRepositoryInfra struct {

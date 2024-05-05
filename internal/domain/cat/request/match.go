@@ -41,3 +41,8 @@ func (r *MatchRequest) ToModel() (insert model.InsertMatch, err error) {
 type MatchApproval struct {
 	MatchId string `validate:"required" json:"matchId"`
 }
+
+func (r *MatchApproval) Validate() (err error) {
+	validate := validator.GetValidator()
+	return validate.Struct(r)
+}
