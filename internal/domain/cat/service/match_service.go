@@ -110,14 +110,14 @@ func (u *CatServiceImpl) RejectCatMatch(ctx context.Context, matchIDStr string) 
 }
 
 func (u *CatServiceImpl) DeleteCatMatch(ctx context.Context, userID uuid.UUID, matchIDStr string) (message string, err error) {
-	matchCat, err := u.CatRepository.FindMatchByID(ctx, matchIDStr)
-	if err != nil {
-		return
-	}
-	if matchCat.IsApproved {
-		err = failure.BadRequestFromString("Match is Approved!")
-		return
-	}
+	//_, err = u.CatRepository.FindMatchByID(ctx, matchIDStr)
+	//if err != nil {
+	//	return
+	//}
+	//if matchCat.IsApproved {
+	//	err = failure.BadRequestFromString("Match is Approved!")
+	//	return
+	//}
 	if err = u.CatRepository.DeleteMatch(ctx, userID, matchIDStr); err != nil {
 		message = "Failed to delete match"
 		logger.ErrorWithStack(err)
