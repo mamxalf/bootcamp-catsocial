@@ -98,7 +98,21 @@ func (h *CatHandler) FindAllMatchData(w http.ResponseWriter, r *http.Request) {
 // @Router /v1/cat/match/approve [post]
 func (h *CatHandler) ApproveCatMatch(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
-	res, err := h.CatService.ApproveCatMatch(r.Context(), idStr)
+	claimUser, ok := middleware.GetClaimsUser(r.Context()).(jwt.MapClaims)
+	if !ok {
+		log.Warn().Msg("invalid claim jwt")
+		err := failure.Unauthorized("invalid claim jwt")
+		response.WithError(w, err)
+		return
+	}
+	userID, err := uuid.Parse(claimUser["ownerID"].(string))
+	if err != nil {
+		log.Warn().Msg(err.Error())
+		err = failure.Unauthorized("invalid format user_id")
+		response.WithError(w, err)
+		return
+	}
+	res, err := h.CatService.ApproveCatMatch(r.Context(), userID, idStr)
 	if err != nil {
 		response.WithError(w, err)
 		return

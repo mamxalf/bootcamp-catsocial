@@ -89,7 +89,7 @@ func (u *CatServiceImpl) GetAllMatchesData(ctx context.Context) (res []model.Mat
 	return
 }
 
-func (u *CatServiceImpl) ApproveCatMatch(ctx context.Context, matchIDStr string) (message string, err error) {
+func (u *CatServiceImpl) ApproveCatMatch(ctx context.Context, userID uuid.UUID, matchIDStr string) (message string, err error) {
 	matchID, err := uuid.Parse(matchIDStr)
 	if err != nil {
 		message = "Failed to parse match id"
@@ -97,6 +97,11 @@ func (u *CatServiceImpl) ApproveCatMatch(ctx context.Context, matchIDStr string)
 		return
 	}
 	if err = u.CatRepository.IsApprove(ctx, matchID, true); err != nil {
+		message = "Failed to approve match"
+		logger.ErrorWithStack(err)
+		return
+	}
+	if err = u.CatRepository.DeleteAllMatchCat(ctx, userID, matchID); err != nil {
 		message = "Failed to approve match"
 		logger.ErrorWithStack(err)
 		return

@@ -167,6 +167,23 @@ func (c *CatRepositoryInfra) DeleteMatch(ctx context.Context, userID uuid.UUID, 
 	return
 }
 
+func (c *CatRepositoryInfra) DeleteAllMatchCat(ctx context.Context, userID uuid.UUID, matchID uuid.UUID) (err error) {
+	match, err := c.FindMatchByID(ctx, matchID)
+	if err != nil {
+		return
+	}
+	whereClause := "match_cat_id = $1 AND issued_user_id = $2"
+	commandQuery := fmt.Sprintf(matchQueries.deleteMatch, whereClause)
+
+	_, err = c.DB.PG.ExecContext(ctx, commandQuery, match.MatchCatID, userID)
+	if err != nil {
+		logger.ErrorWithStack(err)
+		return failure.InternalError(err)
+	}
+
+	return
+}
+
 func (c *CatRepositoryInfra) FindMatchByUserCatID(ctx context.Context, userCatID uuid.UUID) (cat model.Match, err error) {
 	whereClause := "user_cat_id = $1 LIMIT 1"
 	commandQuery := fmt.Sprintf(matchQueries.getMatch, whereClause)
