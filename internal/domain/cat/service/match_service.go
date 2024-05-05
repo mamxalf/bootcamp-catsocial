@@ -40,8 +40,8 @@ func (u *CatServiceImpl) InsertNewMatch(ctx context.Context, userID uuid.UUID, r
 		return
 	}
 
-	if matchCat.UserID == user.ID {
-		err = failure.BadRequestFromString("From Same owner!")
+	if userCat.UserID != user.ID {
+		err = failure.NotFound("Not belong user!")
 		return
 	}
 
@@ -50,17 +50,12 @@ func (u *CatServiceImpl) InsertNewMatch(ctx context.Context, userID uuid.UUID, r
 		return
 	}
 
-	// if both matchCatId & userCatId already matched
-	matchCatUser, err := u.CatRepository.FindMatchByMatchCatID(ctx, matchCat.UserID)
-	//if err != nil {
-	//	return
-	//}
-	userCatUser, err := u.CatRepository.FindMatchByUserCatID(ctx, userCat.UserID)
-	//if err != nil {
-	//	return
-	//}
-	if matchCatUser.IsApproved && userCatUser.IsApproved {
-		err = failure.BadRequestFromString("Both Cat Already Matched!")
+	if matchCat.HasMatched && userCat.HasMatched {
+		err = failure.BadRequestFromString("Both Has Matched!")
+		return
+	}
+	if matchCat.UserID == user.ID {
+		err = failure.BadRequestFromString("From Same owner!")
 		return
 	}
 
