@@ -5,6 +5,8 @@ import (
 	"catsocial/shared/failure"
 	"catsocial/shared/logger"
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -168,8 +170,12 @@ func (c *CatRepositoryInfra) DeleteMatch(ctx context.Context, matchID uuid.UUID)
 func (c *CatRepositoryInfra) FindMatchByUserCatID(ctx context.Context, userCatID uuid.UUID) (cat model.Match, err error) {
 	whereClause := "user_cat_id = $1"
 	commandQuery := fmt.Sprintf(matchQueries.deleteMatch, whereClause)
-	err = c.DB.PG.SelectContext(ctx, &cat, commandQuery, userCatID)
+	err = c.DB.PG.GetContext(ctx, &cat, commandQuery, userCatID)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			err = failure.NotFound("User not found!")
+			return
+		}
 		logger.ErrorWithStack(err)
 		err = failure.InternalError(err)
 		return
@@ -182,6 +188,10 @@ func (c *CatRepositoryInfra) FindMatchByMatchCatID(ctx context.Context, matchCat
 	commandQuery := fmt.Sprintf(matchQueries.deleteMatch, whereClause)
 	err = c.DB.PG.GetContext(ctx, &cat, commandQuery, matchCatID)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			err = failure.NotFound("User not found!")
+			return
+		}
 		logger.ErrorWithStack(err)
 		err = failure.InternalError(err)
 		return
