@@ -131,7 +131,7 @@ func (u *CatServiceImpl) DeleteCatMatch(ctx context.Context, userID uuid.UUID, m
 		logger.ErrorWithStack(err)
 		return
 	}
-	if err = u.CatRepository.DeleteMatch(ctx, matchID); err != nil {
+	if err = u.CatRepository.DeleteMatch(ctx, userID, matchID); err != nil {
 		message = "Failed to delete match"
 		logger.ErrorWithStack(err)
 		return

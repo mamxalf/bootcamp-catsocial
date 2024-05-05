@@ -151,7 +151,7 @@ func (h *CatHandler) DeleteCatMatch(w http.ResponseWriter, r *http.Request) {
 		response.WithError(w, err)
 		return
 	}
-	res, err := h.CatService.DeleteCatMatch(r.Context(), idStr)
+	res, err := h.CatService.DeleteCatMatch(r.Context(), userID, idStr)
 	if err != nil {
 		response.WithError(w, err)
 		return
