@@ -18,27 +18,24 @@ func (u *CatServiceImpl) InsertNewMatch(ctx context.Context, userID uuid.UUID, r
 		return
 	}
 
-	//if insertModel.IssuedUserID != insertModel.UserCatID {
-	//	err = failure.BadRequestFromString("cat is not issued by user")
-	//	return
-	//}
-
 	// Find Cat by User Cat ID
 	userCat, err := u.CatRepository.Find(ctx, insertModel.UserCatID)
 	// if neither matchCatId / userCatId is not found
 	if err != nil {
-		return
-	}
-
-	//  if userCatId is not belong to the user
-	user, err := u.UserRepository.GetUserByID(ctx, userCat.UserID)
-	if err != nil {
+		err = failure.NotFound("User Cat not found!")
 		return
 	}
 
 	// Find Cat by Match Cat ID
 	matchCat, err := u.CatRepository.Find(ctx, insertModel.MatchCatID)
 	// if neither matchCatId / userCatId is not found
+	if err != nil {
+		err = failure.NotFound("Match Cat not found!")
+		return
+	}
+
+	//  if userCatId is not belong to the user
+	user, err := u.UserRepository.GetUserByID(ctx, userCat.UserID)
 	if err != nil {
 		return
 	}
@@ -129,6 +126,14 @@ func (u *CatServiceImpl) DeleteCatMatch(ctx context.Context, userID uuid.UUID, m
 	if err != nil {
 		message = "Failed to parse match id"
 		logger.ErrorWithStack(err)
+		return
+	}
+	matchCat, err := u.CatRepository.FindMatchByID(ctx, matchID)
+	if err != nil {
+		return
+	}
+	if matchCat.IsApproved {
+		err = failure.BadRequestFromString("Match is Approved!")
 		return
 	}
 	if err = u.CatRepository.DeleteMatch(ctx, userID, matchID); err != nil {

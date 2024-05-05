@@ -168,12 +168,12 @@ func (c *CatRepositoryInfra) DeleteMatch(ctx context.Context, userID uuid.UUID, 
 }
 
 func (c *CatRepositoryInfra) FindMatchByUserCatID(ctx context.Context, userCatID uuid.UUID) (cat model.Match, err error) {
-	whereClause := "user_cat_id = $1"
-	commandQuery := fmt.Sprintf(matchQueries.deleteMatch, whereClause)
+	whereClause := "user_cat_id = $1 LIMIT 1"
+	commandQuery := fmt.Sprintf(matchQueries.getMatch, whereClause)
 	err = c.DB.PG.GetContext(ctx, &cat, commandQuery, userCatID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			err = failure.NotFound("User not found!")
+			err = failure.NotFound("Match by User ID not found!")
 			return
 		}
 		logger.ErrorWithStack(err)
@@ -184,12 +184,28 @@ func (c *CatRepositoryInfra) FindMatchByUserCatID(ctx context.Context, userCatID
 }
 
 func (c *CatRepositoryInfra) FindMatchByMatchCatID(ctx context.Context, matchCatID uuid.UUID) (cat model.Match, err error) {
-	whereClause := "match_cat_id = $1"
-	commandQuery := fmt.Sprintf(matchQueries.deleteMatch, whereClause)
+	whereClause := "match_cat_id = $1 LIMIT 1"
+	commandQuery := fmt.Sprintf(matchQueries.getMatch, whereClause)
 	err = c.DB.PG.GetContext(ctx, &cat, commandQuery, matchCatID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			err = failure.NotFound("User not found!")
+			err = failure.NotFound("Match BY Match ID not found!")
+			return
+		}
+		logger.ErrorWithStack(err)
+		err = failure.InternalError(err)
+		return
+	}
+	return
+}
+
+func (c *CatRepositoryInfra) FindMatchByID(ctx context.Context, ID uuid.UUID) (cat model.Match, err error) {
+	whereClause := "ID = $1 LIMIT 1"
+	commandQuery := fmt.Sprintf(matchQueries.getMatch, whereClause)
+	err = c.DB.PG.GetContext(ctx, &cat, commandQuery, ID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			err = failure.NotFound("Match not found!")
 			return
 		}
 		logger.ErrorWithStack(err)

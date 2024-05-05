@@ -7,13 +7,13 @@ import (
 )
 
 type InsertCatRequest struct {
-	UserID      uuid.UUID
-	Name        string   `validate:"required,min=1,max=30"`                                                                                                                 // Not null, minLength 1, maxLength 30
-	Race        string   `validate:"required,oneof='Persian' 'Maine Coon' 'Siamese' 'Ragdoll' 'Bengal' 'Sphynx' 'British Shorthair' 'Abyssinian' 'Scottish Fold' 'Birman'"` // Enum
-	Sex         string   `validate:"required,oneof='male' 'female'"`                                                                                                        // Enum
-	AgeInMonth  int      `validate:"required,min=1,max=120082"`                                                                                                             // Min 1, Max 120082
-	Description string   `validate:"required,min=1,max=200"`                                                                                                                // Not null, minLength 1, maxLength 200
-	ImageUrls   []string `validate:"required,min=1,dive,required,url"`                                                                                                      // Not null, minItems 1, items must be valid URLs
+	UserID      uuid.UUID `json:"-"`
+	Name        string    `validate:"required,min=1,max=30"`                                                                                                                 // Not null, minLength 1, maxLength 30
+	Race        string    `validate:"required,oneof='Persian' 'Maine Coon' 'Siamese' 'Ragdoll' 'Bengal' 'Sphynx' 'British Shorthair' 'Abyssinian' 'Scottish Fold' 'Birman'"` // Enum
+	Sex         string    `validate:"required,oneof='male' 'female'"`                                                                                                        // Enum
+	AgeInMonth  int       `validate:"required,min=1,max=120082"`                                                                                                             // Min 1, Max 120082
+	Description string    `validate:"required,min=1,max=200"`                                                                                                                // Not null, minLength 1, maxLength 200
+	ImageUrls   []string  `validate:"required,min=1,dive,required,url"`                                                                                                      // Not null, minItems 1, items must be valid URLs
 }
 
 func (r *InsertCatRequest) Validate() (err error) {
