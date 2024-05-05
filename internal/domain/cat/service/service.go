@@ -25,7 +25,7 @@ type CatService interface {
 	GetAllMatchesData(ctx context.Context) (res []model.MatchDetails, err error)
 	ApproveCatMatch(ctx context.Context, matchID string) (message string, err error)
 	RejectCatMatch(ctx context.Context, matchID string) (message string, err error)
-	DeleteCatMatch(ctx context.Context, matchID string) (message string, err error)
+	DeleteCatMatch(ctx context.Context, userID uuid.UUID, matchID string) (message string, err error)
 }
 type CatServiceImpl struct {
 	CatRepository  catRepository.CatRepository

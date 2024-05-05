@@ -124,7 +124,7 @@ func (u *CatServiceImpl) RejectCatMatch(ctx context.Context, matchIDStr string) 
 	return
 }
 
-func (u *CatServiceImpl) DeleteCatMatch(ctx context.Context, matchIDStr string) (message string, err error) {
+func (u *CatServiceImpl) DeleteCatMatch(ctx context.Context, userID uuid.UUID, matchIDStr string) (message string, err error) {
 	matchID, err := uuid.Parse(matchIDStr)
 	if err != nil {
 		message = "Failed to parse match id"

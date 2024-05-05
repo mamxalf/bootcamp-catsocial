@@ -137,6 +137,20 @@ func (h *CatHandler) RejectCatMatch(w http.ResponseWriter, r *http.Request) {
 // @Router /v1/cat/match/{id} [delete]
 func (h *CatHandler) DeleteCatMatch(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
+	claimUser, ok := middleware.GetClaimsUser(r.Context()).(jwt.MapClaims)
+	if !ok {
+		log.Warn().Msg("invalid claim jwt")
+		err := failure.Unauthorized("invalid claim jwt")
+		response.WithError(w, err)
+		return
+	}
+	userID, err := uuid.Parse(claimUser["ownerID"].(string))
+	if err != nil {
+		log.Warn().Msg(err.Error())
+		err = failure.Unauthorized("invalid format user_id")
+		response.WithError(w, err)
+		return
+	}
 	res, err := h.CatService.DeleteCatMatch(r.Context(), idStr)
 	if err != nil {
 		response.WithError(w, err)

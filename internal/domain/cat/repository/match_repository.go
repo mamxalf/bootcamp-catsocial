@@ -154,11 +154,11 @@ func (c *CatRepositoryInfra) IsApprove(ctx context.Context, matchID uuid.UUID, i
 	return
 }
 
-func (c *CatRepositoryInfra) DeleteMatch(ctx context.Context, matchID uuid.UUID) (err error) {
-	whereClause := "id = $1"
+func (c *CatRepositoryInfra) DeleteMatch(ctx context.Context, userID uuid.UUID, matchID uuid.UUID) (err error) {
+	whereClause := "id = $1 AND issued_user_id = $2"
 	commandQuery := fmt.Sprintf(matchQueries.deleteMatch, whereClause)
 
-	_, err = c.DB.PG.ExecContext(ctx, commandQuery, matchID)
+	_, err = c.DB.PG.ExecContext(ctx, commandQuery, matchID, userID)
 	if err != nil {
 		logger.ErrorWithStack(err)
 		return failure.InternalError(err)
