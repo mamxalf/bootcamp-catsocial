@@ -11,6 +11,7 @@ import (
 type UserRepository interface {
 	Register(ctx context.Context, userRegister *model.UserRegister) (lastInsertId uuid.UUID, err error)
 	GetUserByEmail(ctx context.Context, email string) (user model.User, err error)
+	GetUserByID(ctx context.Context, id uuid.UUID) (user model.User, err error)
 }
 
 type UserRepositoryInfra struct {

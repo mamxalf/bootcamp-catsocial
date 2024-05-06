@@ -1,6 +1,6 @@
 include .env
 
-MIGRATION_STEP=1
+MIGRATION_STEP=
 DB_CONN=postgres://$(DB_USERNAME:"%"=%):$(DB_PASSWORD:"%"=%)@$(DB_HOST:"%"=%):$(DB_PORT:"%"=%)/$(DB_NAME:"%"=%)?$(DB_PARAMS:"%"=%)
 
 dev: generate

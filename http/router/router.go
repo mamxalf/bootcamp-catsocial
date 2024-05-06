@@ -1,6 +1,7 @@
 package router
 
 import (
+	"catsocial/internal/handler/cat"
 	"catsocial/internal/handler/health"
 	"catsocial/internal/handler/user"
 
@@ -10,6 +11,7 @@ import (
 type DomainHandlers struct {
 	HealthHandler health.HealthHandler
 	UserHandler   user.UserHandler
+	CatHandler    cat.CatHandler
 }
 
 type Router struct {
@@ -27,5 +29,6 @@ func (r *Router) SetupRoutes(mux *chi.Mux) {
 	mux.Route("/v1", func(rc chi.Router) {
 		r.DomainHandlers.HealthHandler.Router(rc)
 		r.DomainHandlers.UserHandler.Router(rc)
+		r.DomainHandlers.CatHandler.Router(rc)
 	})
 }
